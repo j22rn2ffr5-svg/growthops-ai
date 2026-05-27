@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   CheckCircle2, ArrowRight, Zap, HelpCircle,
-  RefreshCw, BarChart3, Shield, Users, MessageSquare, TrendingUp, Mic,
+  RefreshCw, BarChart3, Shield, Users, MessageSquare, TrendingUp, Mic, Tag,
 } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import CTA from '../components/CTA'
@@ -159,6 +159,10 @@ const retentionTiers = [
     priceNote: 'per month',
     color: '#a78bfa',
     featured: true,
+    deal: {
+      saving: 'Save up to £1,250 on setup',
+      note: '50% off your setup cost when you commit to 12 months upfront.',
+    },
     includes: [
       'Everything in Essential',
       'Monthly CRO testing and improvements',
@@ -175,6 +179,10 @@ const retentionTiers = [
     price: 'From £1,500',
     priceNote: 'per month',
     color: '#34d399',
+    deal: {
+      saving: 'Setup fully waived — save up to £2,500',
+      note: 'Your entire setup fee is waived when you commit to a 12-month Full Partnership.',
+    },
     includes: [
       'Everything in Active Growth',
       'Paid advertising management (Google + Meta)',
@@ -212,7 +220,7 @@ const faqs = [
   },
   {
     q: 'Is there a minimum commitment period?',
-    a: "Initial builds are project-based with a clear scope and timeline. Ongoing optimisation and support runs on monthly retainers with reasonable notice periods. We'll be transparent about this before you commit to anything.",
+    a: "Initial builds are project-based with a clear scope and timeline. Retainers run monthly with 30 days' notice — or, if you opt into our 12-month commitment deal, your setup costs are reduced or waived entirely in exchange for the longer term.",
   },
   {
     q: 'Can we start smaller and upgrade later?',
@@ -451,7 +459,39 @@ export default function PackagesPage() {
 
           {/* Retention tiers */}
           <FadeUp>
-            <h3 className="text-lg font-bold text-white text-center mb-8">Choose your retainer level</h3>
+            <h3 className="text-lg font-bold text-white text-center mb-6">Choose your retainer level</h3>
+          </FadeUp>
+
+          {/* 12-month deal banner */}
+          <FadeUp delay={0.05}>
+            <div
+              className="mb-8 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+              style={{
+                background: 'linear-gradient(135deg, rgba(251,191,36,0.07) 0%, rgba(245,158,11,0.05) 100%)',
+                border: '1px solid rgba(251,191,36,0.25)',
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}
+              >
+                <Tag size={18} color="#fbbf24" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-white mb-1">12-Month Commitment Deal</p>
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  Lock in for 12 months on an Active Growth or Full Partnership retainer and we'll reduce or waive your setup costs entirely.
+                  <span className="text-yellow-400 font-semibold"> Active Growth: 50% off setup (save up to £1,250). Full Partnership: setup fully waived (save up to £2,500).</span>
+                </p>
+              </div>
+              <Link
+                to="/book"
+                className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all"
+                style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', textDecoration: 'none' }}
+              >
+                Claim this deal <ArrowRight size={12} />
+              </Link>
+            </div>
           </FadeUp>
           <div className="grid md:grid-cols-3 gap-5">
             {retentionTiers.map((tier, i) => (
@@ -498,6 +538,20 @@ export default function PackagesPage() {
                         </div>
                       ))}
                     </div>
+                    {tier.deal && (
+                      <div
+                        className="mb-4 p-3 rounded-xl"
+                        style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.22)' }}
+                      >
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Tag size={11} color="#fbbf24" />
+                          <span className="text-xs font-bold" style={{ color: '#fbbf24' }}>12-Month Deal</span>
+                        </div>
+                        <p className="text-xs font-semibold text-white mb-0.5">{tier.deal.saving}</p>
+                        <p className="text-xs text-gray-400 leading-snug">{tier.deal.note}</p>
+                      </div>
+                    )}
+
                     <Link
                       to="/book"
                       className="flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold transition-all duration-200 mt-auto"
