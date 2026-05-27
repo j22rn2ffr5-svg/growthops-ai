@@ -60,9 +60,28 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop CTA */}
-        <Link to="/book" className="hidden md:inline-flex btn-primary text-sm px-5 py-2.5" style={{ textDecoration: 'none' }}>
-          Book a Strategy Call
-        </Link>
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/portal"
+            style={{
+              textDecoration: 'none',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#6b7280',
+              border: '1px solid rgba(255,255,255,0.08)',
+              transition: 'color 0.15s, border-color 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#e5e7eb'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
+          >
+            Client Login
+          </Link>
+          <Link to="/book" className="btn-primary text-sm px-5 py-2.5" style={{ textDecoration: 'none' }}>
+            Book a Strategy Call
+          </Link>
+        </div>
 
         {/* Mobile toggle */}
         <button
@@ -97,6 +116,14 @@ export default function Navbar() {
                   {link.label}
                 </NavLink>
               ))}
+              <Link
+                to="/portal"
+                className="py-3 text-sm font-medium text-gray-400 hover:text-white transition-colors border-b border-white/5"
+                style={{ textDecoration: 'none' }}
+                onClick={() => setMobileOpen(false)}
+              >
+                Client Login
+              </Link>
               <Link
                 to="/book"
                 className="btn-primary mt-3 justify-center text-sm"
