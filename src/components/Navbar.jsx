@@ -61,21 +61,7 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            to="/portal"
-            style={{
-              textDecoration: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#6b7280',
-              border: '1px solid rgba(255,255,255,0.08)',
-              transition: 'color 0.15s, border-color 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#e5e7eb'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
-          >
+          <Link to="/portal" className="btn-primary text-sm px-5 py-2.5" style={{ textDecoration: 'none' }}>
             Client Login
           </Link>
           <Link to="/book" className="btn-primary text-sm px-5 py-2.5" style={{ textDecoration: 'none' }}>
