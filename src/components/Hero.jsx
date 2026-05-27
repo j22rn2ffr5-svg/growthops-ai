@@ -1,49 +1,6 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, ChevronDown, TrendingUp, Zap, BarChart3, Clock } from 'lucide-react'
+import { ArrowRight, ChevronDown, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-const floatingCards = [
-  {
-    icon: TrendingUp,
-    label: 'More Leads',
-    value: '+38%',
-    color: '#3b82f6',
-    bg: 'rgba(59,130,246,0.1)',
-    border: 'rgba(59,130,246,0.2)',
-    delay: 0,
-    position: 'top-24 left-6 md:left-12',
-  },
-  {
-    icon: Clock,
-    label: 'Faster Follow-Up',
-    value: '<2 min',
-    color: '#a78bfa',
-    bg: 'rgba(139,92,246,0.1)',
-    border: 'rgba(139,92,246,0.2)',
-    delay: 1,
-    position: 'top-24 right-6 md:right-12',
-  },
-  {
-    icon: Zap,
-    label: 'Automated Workflows',
-    value: '15+ hrs/wk',
-    color: '#34d399',
-    bg: 'rgba(52,211,153,0.1)',
-    border: 'rgba(52,211,153,0.2)',
-    delay: 2,
-    position: 'bottom-40 left-6 md:left-12',
-  },
-  {
-    icon: BarChart3,
-    label: 'Clear Reporting',
-    value: 'Live',
-    color: '#f59e0b',
-    bg: 'rgba(245,158,11,0.1)',
-    border: 'rgba(245,158,11,0.2)',
-    delay: 1.5,
-    position: 'bottom-40 right-6 md:right-12',
-  },
-]
 
 export default function Hero() {
   return (
@@ -91,38 +48,6 @@ export default function Hero() {
         />
       </div>
 
-      {/* Floating stat cards */}
-      {floatingCards.map((card) => {
-        const Icon = card.icon
-        return (
-          <motion.div
-            key={card.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: [0, -10, 0] }}
-            transition={{
-              opacity: { delay: card.delay + 1, duration: 0.6 },
-              y: { delay: card.delay + 1, duration: 4, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className={`absolute hidden lg:flex items-center gap-3 px-4 py-3 rounded-2xl ${card.position}`}
-            style={{
-              background: card.bg,
-              border: `1px solid ${card.border}`,
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${card.color}22` }}
-            >
-              <Icon size={18} color={card.color} />
-            </div>
-            <div>
-              <div className="text-xs text-gray-400 font-medium leading-none mb-1">{card.label}</div>
-              <div className="text-base font-bold text-white leading-none">{card.value}</div>
-            </div>
-          </motion.div>
-        )
-      })}
 
       {/* Hero content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
