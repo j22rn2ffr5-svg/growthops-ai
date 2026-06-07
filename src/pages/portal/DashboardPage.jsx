@@ -71,7 +71,7 @@ export default function DashboardPage() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-2xl font-extrabold text-white mb-1">
-          {profile?.business_name ? `Welcome back, ${profile.business_name}` : 'Your Portal'}
+          Welcome back
         </h1>
         <p className="text-sm text-gray-500">
           {profile?.package ? `${profile.package} · ` : ''}

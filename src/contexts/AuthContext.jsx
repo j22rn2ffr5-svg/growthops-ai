@@ -4,17 +4,35 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser]               = useState(null)
+  const [profile, setProfile]         = useState(null)
+  const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
+      if (session?.user?.id) {
+        const { data } = await supabase
+          .from('client_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+        setProfile(data ?? null)
+      }
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
+      if (session?.user?.id) {
+        const { data, error } = await supabase
+          .from('client_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+        console.log('Profile fetch:', { data, error })
+        setProfile(data ?? null)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -37,7 +55,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

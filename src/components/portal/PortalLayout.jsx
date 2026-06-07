@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
 
 const navItems = [
   { to: '/portal',          label: 'Overview',   icon: LayoutDashboard, end: true },
@@ -42,9 +43,27 @@ function NavItem({ to, label, icon: Icon, end, onClick }) {
 }
 
 export default function PortalLayout({ children }) {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [companyName, setCompanyName] = useState('')
+
+  useEffect(() => {
+    if (profile?.company_id) {
+      supabase
+        .from('companies')
+        .select('company_name')
+        .eq('id', profile.company_id)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Failed to fetch company name:', error)
+          } else if (data) {
+            setCompanyName(data.company_name)
+          }
+        })
+    }
+  }, [profile?.company_id])
 
   async function handleSignOut() {
     await signOut()
@@ -78,6 +97,14 @@ export default function PortalLayout({ children }) {
           </button>
         )}
       </div>
+
+      {/* Company name */}
+      {companyName && (
+        <div className="px-5 py-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <p className="text-xs text-gray-500">Viewing</p>
+          <p className="text-sm font-semibold text-white truncate">{companyName}</p>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 space-y-0.5">
