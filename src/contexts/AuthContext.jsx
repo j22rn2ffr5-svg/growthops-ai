@@ -9,12 +9,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 5000)
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      clearTimeout(timeout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
-      setLoading(false)
       if (session?.user?.id) {
         const { data } = await supabase
           .from('client_profiles')
@@ -22,23 +18,10 @@ export function AuthProvider({ children }) {
           .eq('id', session.user.id)
           .single()
         setProfile(data ?? null)
+      } else {
+        setProfile(null)
       }
-    }).catch(() => {
-      clearTimeout(timeout)
       setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user?.id) {
-        const { data, error } = await supabase
-          .from('client_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        console.log('Profile fetch:', { data, error })
-        setProfile(data ?? null)
-      }
     })
 
     return () => subscription.unsubscribe()
