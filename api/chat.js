@@ -140,10 +140,13 @@ export default async function handler(req, res) {
       generationConfig: { maxOutputTokens: 300 },
     })
 
-    const history = safeMessages.slice(0, -1).map(m => ({
+    const historyRaw = safeMessages.slice(0, -1).map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
     }))
+    // Gemini requires history to start with a user message
+    const firstUser = historyRaw.findIndex(m => m.role === 'user')
+    const history = firstUser > 0 ? historyRaw.slice(firstUser) : historyRaw
 
     const chat = model.startChat({ history })
     const result = await chat.sendMessage(safeMessages[safeMessages.length - 1].content)
