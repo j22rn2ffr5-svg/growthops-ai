@@ -46,24 +46,7 @@ export default function PortalLayout({ children }) {
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [companyName, setCompanyName] = useState('')
-
-  useEffect(() => {
-    if (profile?.company_id) {
-      supabase
-        .from('companies')
-        .select('company_name')
-        .eq('id', profile.company_id)
-        .single()
-        .then(({ data, error }) => {
-          if (error) {
-            console.error('Failed to fetch company name:', error)
-          } else if (data) {
-            setCompanyName(data.company_name)
-          }
-        })
-    }
-  }, [profile?.company_id])
+  const companyName = profile?.business_name ?? ''
 
   async function handleSignOut() {
     await signOut()
