@@ -20,6 +20,8 @@ export function AuthProvider({ children }) {
           .single()
         setProfile(data ?? null)
       }
+    }).catch(() => {
+      setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
