@@ -3,21 +3,30 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+async function fetchUserData(userId) {
+  const [profileRes, adminRes] = await Promise.all([
+    supabase.from('client_profiles').select('*').eq('id', userId).single(),
+    supabase.from('admin_users').select('id').eq('id', userId).single(),
+  ])
+  return {
+    profile: profileRes.data ?? null,
+    isAdmin: !!adminRes.data,
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser]               = useState(null)
-  const [profile, setProfile]         = useState(null)
-  const [loading, setLoading]         = useState(true)
+  const [user, setUser]       = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user?.id) {
-        const { data } = await supabase
-          .from('client_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        setProfile(data ?? null)
+        const { profile, isAdmin } = await fetchUserData(session.user.id)
+        setProfile(profile)
+        setIsAdmin(isAdmin)
       }
       setLoading(false)
     })
@@ -25,14 +34,12 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user?.id) {
-        const { data } = await supabase
-          .from('client_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        setProfile(data ?? null)
+        const { profile, isAdmin } = await fetchUserData(session.user.id)
+        setProfile(profile)
+        setIsAdmin(isAdmin)
       } else {
         setProfile(null)
+        setIsAdmin(false)
       }
     })
 
@@ -56,7 +63,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ user, profile, isAdmin, loading, signIn, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

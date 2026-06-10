@@ -26,6 +26,9 @@ import DashboardPage from './pages/portal/DashboardPage'
 import TicketsPage from './pages/portal/TicketsPage'
 import NewTicketPage from './pages/portal/NewTicketPage'
 import AnalyticsPage from './pages/portal/AnalyticsPage'
+import AdminDashboardPage from './pages/portal/admin/AdminDashboardPage'
+import AdminTicketsPage from './pages/portal/admin/AdminTicketsPage'
+import AdminEnquiriesPage from './pages/portal/admin/AdminEnquiriesPage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -74,6 +77,9 @@ function PortalApp() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="tickets" element={<TicketsPage />} />
                 <Route path="tickets/new" element={<NewTicketPage />} />
+                <Route path="admin" element={<AdminDashboardPage />} />
+                <Route path="admin/tickets" element={<AdminTicketsPage />} />
+                <Route path="admin/enquiries" element={<AdminEnquiriesPage />} />
                 <Route path="*" element={<Navigate to="/portal" replace />} />
               </Routes>
             </PortalLayout>

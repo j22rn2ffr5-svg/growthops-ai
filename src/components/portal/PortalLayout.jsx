@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap, ShieldCheck, Mail, Users } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../lib/supabase'
 
-const navItems = [
-  { to: '/portal',          label: 'Overview',   icon: LayoutDashboard, end: true },
-  { to: '/portal/analytics', label: 'Analytics', icon: BarChart3 },
-  { to: '/portal/tickets',   label: 'Tickets',   icon: Ticket },
+const clientNavItems = [
+  { to: '/portal',           label: 'Overview',   icon: LayoutDashboard, end: true },
+  { to: '/portal/analytics', label: 'Analytics',  icon: BarChart3 },
+  { to: '/portal/tickets',   label: 'Tickets',    icon: Ticket },
+]
+
+const adminNavItems = [
+  { to: '/portal/admin',           label: 'Overview',   icon: LayoutDashboard, end: true },
+  { to: '/portal/admin/tickets',   label: 'Tickets',    icon: Ticket },
+  { to: '/portal/admin/enquiries', label: 'Enquiries',  icon: Mail },
 ]
 
 function NavItem({ to, label, icon: Icon, end, onClick }) {
@@ -43,10 +48,11 @@ function NavItem({ to, label, icon: Icon, end, onClick }) {
 }
 
 export default function PortalLayout({ children }) {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, isAdmin, signOut } = useAuth()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const companyName = profile?.business_name ?? ''
+  const companyName = isAdmin ? 'Admin' : (profile?.business_name ?? '')
+  const navItems = isAdmin ? adminNavItems : clientNavItems
 
   async function handleSignOut() {
     await signOut()
