@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   // 2. Send email notification via Resend
   try {
     await resend.emails.send({
-      from:    'GrowthOps AI <notifications@growthops.ai>',
+      from:    'GrowthOps AI <onboarding@resend.dev>',
       to:      'chriseyres89@gmail.com',
       subject: `New enquiry from ${name}${business ? ` — ${business}` : ''}`,
       html: `
