@@ -27,10 +27,27 @@ const onBlur = (e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', business: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setSubmitted(true)
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.')
+      setSubmitted(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -154,9 +171,18 @@ export default function Contact() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full justify-center py-4 text-base">
+              {error && (
+                <div
+                  className="px-4 py-3 rounded-xl text-sm"
+                  style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+                >
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-4 text-base">
                 <Send size={17} />
-                Send Enquiry
+                {loading ? 'Sending…' : 'Send Enquiry'}
               </button>
 
               <p className="text-xs text-gray-600 text-center mt-4">
