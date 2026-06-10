@@ -84,13 +84,13 @@ export default function CaseStudies() {
       <div className="max-w-7xl mx-auto px-6">
         <FadeUp>
           <div className="text-center mb-6">
-            <span className="section-label">Results</span>
+            <span className="section-label">Example Scenarios</span>
             <h2 className="mt-5 text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-              What integrated growth systems{' '}
-              <span className="gradient-text">actually deliver.</span>
+              What we build and{' '}
+              <span className="gradient-text">how it typically works.</span>
             </h2>
             <p className="mt-5 text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
-              Real-world scenarios showing typical outcomes for businesses at different stages.
+              Illustrative examples of the systems we build for businesses at different stages.
             </p>
           </div>
 
@@ -140,7 +140,7 @@ export default function CaseStudies() {
 
                   {/* Results */}
                   <div className="mt-auto">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Typical Outcomes</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Illustrative Outcomes</p>
                     <div className="grid grid-cols-2 gap-2">
                       {c.results.map((r) => (
                         <div

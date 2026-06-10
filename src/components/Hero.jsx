@@ -117,7 +117,7 @@ export default function Hero() {
           Built for service businesses, local teams, and growing SMBs that need practical systems — not another dashboard.
         </motion.p>
 
-        {/* Stat bar */}
+        {/* Benefit bar */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -126,31 +126,21 @@ export default function Hero() {
           style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.07)' }}
         >
           {[
-            { value: '38%', label: 'Avg. lead increase' },
-            { value: '< 2 min', label: 'Follow-up time' },
-            { value: '15 hrs', label: 'Admin saved/week' },
-            { value: '3×', label: 'More qualified enquiries' },
-          ].map((stat) => (
+            { value: 'Faster follow-up', label: 'Respond to leads in minutes, not hours' },
+            { value: 'Less admin', label: 'Automate repetitive tasks and free up time' },
+            { value: 'Full visibility', label: 'Know exactly where every lead comes from' },
+            { value: 'More conversions', label: 'Turn more enquiries into paying customers' },
+          ].map((benefit) => (
             <div
-              key={stat.label}
+              key={benefit.value}
               className="py-5 px-4 text-center"
               style={{ background: 'rgba(6,15,28,0.7)' }}
             >
-              <div className="text-2xl font-bold gradient-text">{stat.value}</div>
-              <div className="text-xs text-gray-500 mt-1 font-medium">{stat.label}</div>
+              <div className="text-sm font-bold gradient-text leading-snug">{benefit.value}</div>
+              <div className="text-xs text-gray-500 mt-1 font-medium leading-snug">{benefit.label}</div>
             </div>
           ))}
         </motion.div>
-
-        {/* Stat disclaimer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.75 }}
-          className="text-xs text-gray-700 mt-3"
-        >
-          Figures represent typical outcomes from example growth systems. Individual results vary.
-        </motion.p>
       </div>
 
       {/* Scroll cue */}
