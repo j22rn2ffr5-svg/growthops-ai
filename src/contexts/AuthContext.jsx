@@ -9,7 +9,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 5000)
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      clearTimeout(timeout)
       setUser(session?.user ?? null)
       setLoading(false)
       if (session?.user?.id) {
@@ -21,6 +24,7 @@ export function AuthProvider({ children }) {
         setProfile(data ?? null)
       }
     }).catch(() => {
+      clearTimeout(timeout)
       setLoading(false)
     })
 
