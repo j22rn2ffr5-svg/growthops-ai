@@ -4,17 +4,25 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser]               = useState(null)
+  const [profile, setProfile]         = useState(null)
+  const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
-    // Safety net — never block the UI for more than 2 seconds
-    const timeout = setTimeout(() => setLoading(false), 2000)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user?.id) {
+        const { data } = await supabase
+          .from('client_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+        setProfile(data ?? null)
+      }
+      setLoading(false)
+    })
 
-    // Fires immediately from localStorage cache — no network call needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      clearTimeout(timeout)
       setUser(session?.user ?? null)
       if (session?.user?.id) {
         const { data } = await supabase
@@ -26,13 +34,9 @@ export function AuthProvider({ children }) {
       } else {
         setProfile(null)
       }
-      setLoading(false)
     })
 
-    return () => {
-      clearTimeout(timeout)
-      subscription.unsubscribe()
-    }
+    return () => subscription.unsubscribe()
   }, [])
 
   async function signIn(email, password) {
