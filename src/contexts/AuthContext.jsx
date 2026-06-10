@@ -4,12 +4,17 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]               = useState(null)
-  const [profile, setProfile]         = useState(null)
-  const [loading, setLoading]         = useState(true)
+  const [user, setUser]     = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Safety net — never block the UI for more than 2 seconds
+    const timeout = setTimeout(() => setLoading(false), 2000)
+
+    // Fires immediately from localStorage cache — no network call needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      clearTimeout(timeout)
       setUser(session?.user ?? null)
       if (session?.user?.id) {
         const { data } = await supabase
@@ -24,7 +29,10 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function signIn(email, password) {
