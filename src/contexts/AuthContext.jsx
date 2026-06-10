@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
+      setLoading(false)
       if (session?.user?.id) {
         const { data } = await supabase
           .from('client_profiles')
@@ -19,7 +20,6 @@ export function AuthProvider({ children }) {
           .single()
         setProfile(data ?? null)
       }
-      setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
