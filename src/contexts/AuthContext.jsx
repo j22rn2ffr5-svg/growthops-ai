@@ -21,14 +21,24 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const loadingTimeout = setTimeout(() => setLoading(false), 10000)
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user?.id) {
-        const { profile, isAdmin } = await fetchUserData(session.user.id)
-        setProfile(profile)
-        setIsAdmin(isAdmin)
+        try {
+          const { profile, isAdmin } = await fetchUserData(session.user.id)
+          setProfile(profile)
+          setIsAdmin(isAdmin)
+        } catch {
+          // profile fetch failed — still unblock the app
+        }
       }
       setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+    }).finally(() => {
+      clearTimeout(loadingTimeout)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
