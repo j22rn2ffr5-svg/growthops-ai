@@ -6,9 +6,16 @@ import { useAuth } from '../../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from '../TicketsPage'
 
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
+const PRIORITY_FILTERS = ['all', 'urgent', 'high', 'normal', 'low']
 
 const PRIORITY_ORDER = ['urgent', 'high', 'normal', 'low']
 const priorityLabels = { urgent: 'Urgent', high: 'High', normal: 'Normal', low: 'Low' }
+
+const NEW_THRESHOLD_MS = 48 * 60 * 60 * 1000
+
+function isNew(ticket) {
+  return ticket.status === 'open' && (Date.now() - new Date(ticket.created_at).getTime()) < NEW_THRESHOLD_MS
+}
 
 export default function AdminTicketsPage() {
   const { user }            = useAuth()
@@ -20,7 +27,8 @@ export default function AdminTicketsPage() {
   const [replies, setReplies]   = useState({})
   const [replyText, setReplyText] = useState('')
   const [sending, setSending]   = useState(false)
-  const [view, setView]         = useState('list')
+  const [view, setView]           = useState('list')
+  const [priorityFilter, setPriorityFilter] = useState('all')
   const [collapsedGroups, setCollapsedGroups] = useState({ normal: true, low: true })
 
   useEffect(() => {
@@ -82,11 +90,12 @@ export default function AdminTicketsPage() {
   }
 
   const filtered = tickets.filter(t => {
-    const matchesFilter = filter === 'all' || t.status === filter
-    const matchesSearch = search === '' ||
+    const matchesStatus   = filter === 'all' || t.status === filter
+    const matchesPriority = priorityFilter === 'all' || (t.priority ?? 'normal') === priorityFilter
+    const matchesSearch   = search === '' ||
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.category.toLowerCase().includes(search.toLowerCase())
-    return matchesFilter && matchesSearch
+    return matchesStatus && matchesPriority && matchesSearch
   })
 
   const backlogGroups = PRIORITY_ORDER.map(priority => ({
@@ -112,31 +121,38 @@ export default function AdminTicketsPage() {
       </motion.div>
 
       {/* Filters — list view only */}
-      {view === 'list' && <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="flex flex-col sm:flex-row gap-3">
-        <div className="flex gap-1 p-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          {STATUS_FILTERS.map(s => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-150"
-              style={filter === s ? { background: 'rgba(59,130,246,0.2)', color: '#60a5fa' } : { color: '#6b7280' }}
-            >
-              {s.replace('_', ' ')}
-            </button>
-          ))}
-        </div>
-        <div className="relative flex-1">
-          <Search size={14} color="#4b5563" className="absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search tickets…"
-            className="w-full pl-9 pr-4 py-2 rounded-xl text-sm text-white placeholder-gray-600 outline-none"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-          />
-        </div>
-      </motion.div>}
+      {view === 'list' && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="space-y-2">
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Status filter */}
+            <div className="flex gap-1 p-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              {STATUS_FILTERS.map(s => (
+                <button key={s} onClick={() => setFilter(s)} className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-150" style={filter === s ? { background: 'rgba(59,130,246,0.2)', color: '#60a5fa' } : { color: '#6b7280' }}>
+                  {s.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search size={14} color="#4b5563" className="absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tickets…" className="w-full pl-9 pr-4 py-2 rounded-xl text-sm text-white placeholder-gray-600 outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }} />
+            </div>
+          </div>
+          {/* Priority filter */}
+          <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            {PRIORITY_FILTERS.map(p => {
+              const active = priorityFilter === p
+              const pc = p !== 'all' ? priorityConfig[p] : null
+              return (
+                <button key={p} onClick={() => setPriorityFilter(p)} className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-150"
+                  style={active && pc ? { background: pc.bg, color: pc.color } : active ? { background: 'rgba(59,130,246,0.2)', color: '#60a5fa' } : { color: '#6b7280' }}>
+                  {p}
+                </button>
+              )
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* Ticket list / backlog */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-3">
@@ -189,6 +205,7 @@ export default function AdminTicketsPage() {
     const pc = priorityConfig[ticket.priority] ?? priorityConfig.normal
     const isExpanded = expanded === ticket.id
     const ticketReplies = replies[ticket.id] ?? []
+    const ticketIsNew = isNew(ticket)
     const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
     return (
@@ -200,7 +217,16 @@ export default function AdminTicketsPage() {
           style={{ background: isExpanded ? 'rgba(59,130,246,0.05)' : 'rgba(255,255,255,0.015)' }}
         >
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
+            <div className="flex items-center gap-2">
+              {ticketIsNew && (
+                <span className="relative flex h-2 w-2 flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#3b82f6' }} />
+                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#60a5fa' }} />
+                </span>
+              )}
+              <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
+              {ticketIsNew && <span className="text-xs font-bold px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}>New</span>}
+            </div>
             <p className="text-xs text-gray-500 mt-0.5">{ticket.category} · {date}</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
