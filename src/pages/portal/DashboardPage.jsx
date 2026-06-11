@@ -5,6 +5,7 @@ import { Ticket, BarChart3, User, ArrowRight, Plus, ExternalLink } from 'lucide-
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from './TicketsPage'
+import ProjectTracker from '../../components/portal/ProjectTracker'
 
 function StatCard({ icon: Icon, label, value, color, delay }) {
   return (
@@ -77,6 +78,11 @@ export default function DashboardPage() {
           {profile?.package ? `${profile.package} · ` : ''}
           Account manager: {profile?.account_manager ?? 'Chris Eyres'}
         </p>
+      </motion.div>
+
+      {/* Project tracker */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
+        <ProjectTracker status={profile?.project_status ?? 'onboarding'} />
       </motion.div>
 
       {/* Stats */}

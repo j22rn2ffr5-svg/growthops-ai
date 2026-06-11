@@ -11,9 +11,10 @@ const clientNavItems = [
 ]
 
 const adminNavItems = [
-  { to: '/portal/admin',           label: 'Overview',   icon: LayoutDashboard, end: true },
-  { to: '/portal/admin/tickets',   label: 'Tickets',    icon: Ticket },
-  { to: '/portal/admin/enquiries', label: 'Enquiries',  icon: Mail },
+  { to: '/portal/admin',           label: 'Overview',  icon: LayoutDashboard, end: true },
+  { to: '/portal/admin/tickets',   label: 'Tickets',   icon: Ticket },
+  { to: '/portal/admin/enquiries', label: 'Enquiries', icon: Mail },
+  { to: '/portal/admin/clients',   label: 'Clients',   icon: Users },
 ]
 
 function NavItem({ to, label, icon: Icon, end, onClick }) {
