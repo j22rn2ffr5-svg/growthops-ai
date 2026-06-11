@@ -7,10 +7,23 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const norm = id.replace(/\\/g, '/')
+          if (norm.includes('node_modules/framer-motion')) return 'vendor-motion'
+          if (norm.includes('node_modules/react-dom') || norm.includes('node_modules/react/') || norm.includes('node_modules/react-router')) return 'vendor-react'
+          if (norm.includes('node_modules/lucide-react') || norm.includes('node_modules/react-helmet-async')) return 'vendor-ui'
+          if (norm.includes('node_modules/@supabase') || norm.includes('node_modules/supabase-js')) return 'vendor-supabase'
+          if (norm.includes('/pages/portal/admin/')) return 'portal-admin'
+          if (norm.includes('/pages/portal/')) return 'portal'
+        },
+      },
+    },
+  },
   server: {
     proxy: {
-      // Forward /api/* to the local dev API server during development
-      // Run: node --env-file=.env api-dev.mjs  (in a separate terminal)
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
