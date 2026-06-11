@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ChevronDown, Send } from 'lucide-react'
+import { Search, ChevronDown, Send, LayoutList, Layers } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from '../TicketsPage'
 
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
+
+const PRIORITY_ORDER = ['urgent', 'high', 'normal', 'low']
+const priorityLabels = { urgent: 'Urgent', high: 'High', normal: 'Normal', low: 'Low' }
 
 export default function AdminTicketsPage() {
   const { user }            = useAuth()
@@ -17,6 +20,8 @@ export default function AdminTicketsPage() {
   const [replies, setReplies]   = useState({})
   const [replyText, setReplyText] = useState('')
   const [sending, setSending]   = useState(false)
+  const [view, setView]         = useState('list')
+  const [collapsedGroups, setCollapsedGroups] = useState({ normal: true, low: true })
 
   useEffect(() => {
     fetchTickets()
@@ -52,6 +57,15 @@ export default function AdminTicketsPage() {
     setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status } : t))
   }
 
+  async function handlePriorityChange(ticketId, priority) {
+    await supabase.from('tickets').update({ priority }).eq('id', ticketId)
+    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, priority } : t))
+  }
+
+  function toggleGroup(key) {
+    setCollapsedGroups(prev => ({ ...prev, [key]: !prev[key] }))
+  }
+
   async function handleReply(ticketId) {
     if (!replyText.trim()) return
     setSending(true)
@@ -75,15 +89,30 @@ export default function AdminTicketsPage() {
     return matchesFilter && matchesSearch
   })
 
+  const backlogGroups = PRIORITY_ORDER.map(priority => ({
+    priority,
+    tickets: tickets.filter(t => t.status !== 'resolved' && (t.priority ?? 'normal') === priority),
+  }))
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-2xl font-extrabold text-white mb-1">All Tickets</h1>
-        <p className="text-sm text-gray-500">Manage and respond to client requests.</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white mb-1">All Tickets</h1>
+          <p className="text-sm text-gray-500">Manage and respond to client requests.</p>
+        </div>
+        <div className="flex gap-1 p-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <button onClick={() => setView('list')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" style={view === 'list' ? { background: 'rgba(59,130,246,0.2)', color: '#60a5fa' } : { color: '#6b7280' }}>
+            <LayoutList size={13} /> List
+          </button>
+          <button onClick={() => setView('backlog')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" style={view === 'backlog' ? { background: 'rgba(59,130,246,0.2)', color: '#60a5fa' } : { color: '#6b7280' }}>
+            <Layers size={13} /> Backlog
+          </button>
+        </div>
       </motion.div>
 
-      {/* Filters */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="flex flex-col sm:flex-row gap-3">
+      {/* Filters — list view only */}
+      {view === 'list' && <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="flex flex-col sm:flex-row gap-3">
         <div className="flex gap-1 p-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
           {STATUS_FILTERS.map(s => (
             <button
@@ -107,9 +136,9 @@ export default function AdminTicketsPage() {
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
           />
         </div>
-      </motion.div>
+      </motion.div>}
 
-      {/* Ticket list */}
+      {/* Ticket list / backlog */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-3">
         {loading ? (
           <div className="flex justify-center py-16">
@@ -117,114 +146,169 @@ export default function AdminTicketsPage() {
               {[0, 1, 2].map(i => <div key={i} className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#3b82f6', animationDelay: `${i * 0.15}s` }} />)}
             </div>
           </div>
+        ) : view === 'backlog' ? (
+          <div className="space-y-4">
+            {backlogGroups.map(({ priority, tickets: group }) => {
+              const pc = priorityConfig[priority]
+              const isCollapsed = collapsedGroups[priority]
+              return (
+                <div key={priority}>
+                  <button
+                    onClick={() => toggleGroup(priority)}
+                    className="w-full flex items-center gap-3 mb-2"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.color }}>
+                      {priorityLabels[priority]}
+                    </span>
+                    <span className="text-xs text-gray-600">{group.length} ticket{group.length !== 1 ? 's' : ''}</span>
+                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                    <ChevronDown size={13} color="#4b5563" style={{ transform: isCollapsed ? 'none' : 'rotate(180deg)', transition: 'transform 0.2s' }} />
+                  </button>
+                  {!isCollapsed && (
+                    <div className="space-y-2">
+                      {group.length === 0 ? (
+                        <p className="text-xs text-gray-600 px-1 pb-2">No tickets</p>
+                      ) : group.map(ticket => renderTicket(ticket))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
             <p className="text-sm text-gray-500">No tickets found.</p>
           </div>
-        ) : filtered.map(ticket => {
-          const sc = statusConfig[ticket.status]    ?? statusConfig.open
-          const pc = priorityConfig[ticket.priority] ?? priorityConfig.normal
-          const isExpanded = expanded === ticket.id
-          const ticketReplies = replies[ticket.id] ?? []
-          const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-
-          return (
-            <div key={ticket.id} className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-              {/* Ticket header */}
-              <button
-                onClick={() => handleExpand(ticket.id)}
-                className="w-full flex items-center gap-4 px-5 py-4 text-left transition-colors"
-                style={{ background: isExpanded ? 'rgba(59,130,246,0.05)' : 'rgba(255,255,255,0.015)' }}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{ticket.category} · {date}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.color }}>{ticket.priority}</span>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
-                  <ChevronDown size={14} color="#6b7280" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                </div>
-              </button>
-
-              {/* Expanded content */}
-              {isExpanded && (
-                <div className="px-5 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                  {/* Description */}
-                  <div className="pt-4">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">{ticket.description}</p>
-                  </div>
-
-                  {/* Status update */}
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Update Status</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {Object.entries(statusConfig).map(([key, val]) => (
-                        <button
-                          key={key}
-                          onClick={() => handleStatusChange(ticket.id, key)}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                          style={
-                            ticket.status === key
-                              ? { background: val.bg, color: val.color, border: `1px solid ${val.color}40` }
-                              : { background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.07)' }
-                          }
-                        >
-                          {val.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Replies */}
-                  {ticketReplies.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Replies</p>
-                      <div className="space-y-2">
-                        {ticketReplies.map(r => (
-                          <div key={r.id} className="flex justify-end">
-                            <div
-                              className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm text-white leading-relaxed"
-                              style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', borderRadius: '16px 16px 4px 16px' }}
-                            >
-                              {r.messege}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Reply input */}
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reply to Client</p>
-                    <div className="flex gap-2">
-                      <textarea
-                        value={replyText}
-                        onChange={e => setReplyText(e.target.value)}
-                        placeholder="Type your reply…"
-                        rows={2}
-                        className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none resize-none"
-                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-                      />
-                      <button
-                        onClick={() => handleReply(ticket.id)}
-                        disabled={sending || !replyText.trim()}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
-                        style={{ background: sending || !replyText.trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
-                      >
-                        <Send size={14} />
-                        {sending ? 'Sending…' : 'Send'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
+        ) : filtered.map(ticket => renderTicket(ticket))}
       </motion.div>
     </div>
   )
+
+  function renderTicket(ticket) {
+    const sc = statusConfig[ticket.status]    ?? statusConfig.open
+    const pc = priorityConfig[ticket.priority] ?? priorityConfig.normal
+    const isExpanded = expanded === ticket.id
+    const ticketReplies = replies[ticket.id] ?? []
+    const date = new Date(ticket.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+
+    return (
+      <div key={ticket.id} className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+        {/* Ticket header */}
+        <button
+          onClick={() => handleExpand(ticket.id)}
+          className="w-full flex items-center gap-4 px-5 py-4 text-left transition-colors"
+          style={{ background: isExpanded ? 'rgba(59,130,246,0.05)' : 'rgba(255,255,255,0.015)' }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{ticket.category} · {date}</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: pc.bg, color: pc.color }}>{ticket.priority ?? 'normal'}</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
+            <ChevronDown size={14} color="#6b7280" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </div>
+        </button>
+
+        {/* Expanded content */}
+        {isExpanded && (
+          <div className="px-5 pb-5 space-y-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            {/* Description */}
+            <div className="pt-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description</p>
+              <p className="text-sm text-gray-300 leading-relaxed">{ticket.description}</p>
+            </div>
+
+            {/* Priority */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Priority</p>
+              <div className="flex gap-2 flex-wrap">
+                {PRIORITY_ORDER.map(p => {
+                  const pv = priorityConfig[p]
+                  const active = (ticket.priority ?? 'normal') === p
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => handlePriorityChange(ticket.id, p)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all"
+                      style={active
+                        ? { background: pv.bg, color: pv.color, border: `1px solid ${pv.color}40` }
+                        : { background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.07)' }
+                      }
+                    >
+                      {p}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Status update */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Status</p>
+              <div className="flex gap-2 flex-wrap">
+                {Object.entries(statusConfig).map(([key, val]) => (
+                  <button
+                    key={key}
+                    onClick={() => handleStatusChange(ticket.id, key)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={
+                      ticket.status === key
+                        ? { background: val.bg, color: val.color, border: `1px solid ${val.color}40` }
+                        : { background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.07)' }
+                    }
+                  >
+                    {val.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Replies */}
+            {ticketReplies.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Replies</p>
+                <div className="space-y-2">
+                  {ticketReplies.map(r => (
+                    <div key={r.id} className="flex justify-end">
+                      <div
+                        className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm text-white leading-relaxed"
+                        style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', borderRadius: '16px 16px 4px 16px' }}
+                      >
+                        {r.messege}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reply input */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reply to Client</p>
+              <div className="flex gap-2">
+                <textarea
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  placeholder="Type your reply…"
+                  rows={2}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none resize-none"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                />
+                <button
+                  onClick={() => handleReply(ticket.id)}
+                  disabled={sending || !replyText.trim()}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+                  style={{ background: sending || !replyText.trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
+                >
+                  <Send size={14} />
+                  {sending ? 'Sending…' : 'Send'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
 }
