@@ -173,6 +173,14 @@ export default function PortalLayout({ children }) {
         <main className="flex-1 p-6 md:p-8">
           {children}
         </main>
+
+        {/* Footer */}
+        <footer className="px-6 md:px-8 py-4 flex flex-wrap items-center gap-x-4 gap-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <span className="text-xs text-gray-700">© {new Date().getFullYear()} GrowthOps AI</span>
+          <a href="/privacy-policy"   className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
+          <a href="/terms-of-service" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms &amp; Conditions</a>
+          <a href="mailto:hello@growthops.ai" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">hello@growthops.ai</a>
+        </footer>
       </div>
     </div>
   )
