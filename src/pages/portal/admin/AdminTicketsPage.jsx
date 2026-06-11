@@ -25,7 +25,7 @@ export default function AdminTicketsPage() {
   const [search, setSearch]     = useState('')
   const [expanded, setExpanded] = useState(null)
   const [replies, setReplies]   = useState({})
-  const [replyText, setReplyText] = useState('')
+  const [replyTexts, setReplyTexts] = useState({})
   const [sending, setSending]   = useState(false)
   const [view, setView]           = useState('list')
   const [priorityFilter, setPriorityFilter] = useState('all')
@@ -56,7 +56,6 @@ export default function AdminTicketsPage() {
   async function handleExpand(ticketId) {
     if (expanded === ticketId) { setExpanded(null); return }
     setExpanded(ticketId)
-    setReplyText('')
     await fetchReplies(ticketId)
   }
 
@@ -75,15 +74,16 @@ export default function AdminTicketsPage() {
   }
 
   async function handleReply(ticketId) {
-    if (!replyText.trim()) return
+    const text = replyTexts[ticketId] ?? ''
+    if (!text.trim()) return
     setSending(true)
-    const { error } = await supabase.from('ticket_replies').insert({
-      ticket_id: ticketId,
-      user_id:   user.id,
-      messege:   replyText.trim(),
+    const res = await fetch('/api/ticket-reply', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ ticketId, message: text.trim(), adminUserId: user.id }),
     })
-    if (!error) {
-      setReplyText('')
+    if (res.ok) {
+      setReplyTexts(prev => ({ ...prev, [ticketId]: '' }))
       await fetchReplies(ticketId)
     }
     setSending(false)
@@ -314,8 +314,8 @@ export default function AdminTicketsPage() {
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reply to Client</p>
               <div className="flex gap-2">
                 <textarea
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
+                  value={replyTexts[ticket.id] ?? ''}
+                  onChange={e => setReplyTexts(prev => ({ ...prev, [ticket.id]: e.target.value }))}
                   placeholder="Type your reply…"
                   rows={2}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none resize-none"
@@ -323,9 +323,9 @@ export default function AdminTicketsPage() {
                 />
                 <button
                   onClick={() => handleReply(ticket.id)}
-                  disabled={sending || !replyText.trim()}
+                  disabled={sending || !(replyTexts[ticket.id] ?? '').trim()}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
-                  style={{ background: sending || !replyText.trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
+                  style={{ background: sending || !(replyTexts[ticket.id] ?? '').trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
                 >
                   <Send size={14} />
                   {sending ? 'Sending…' : 'Send'}
