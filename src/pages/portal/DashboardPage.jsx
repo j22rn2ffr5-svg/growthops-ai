@@ -31,20 +31,17 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth()
-  const [profile, setProfile]       = useState(null)
+  const { user, profile } = useAuth()
   const [tickets, setTickets]       = useState([])
   const [dashboards, setDashboards] = useState([])
   const [loading, setLoading]       = useState(true)
 
   useEffect(() => {
     async function fetchData() {
-      const [profileRes, ticketsRes, dashboardsRes] = await Promise.all([
-        supabase.from('client_profiles').select('*').eq('id', user.id).single(),
+      const [ticketsRes, dashboardsRes] = await Promise.all([
         supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
         supabase.from('client_dashboards').select('*').eq('user_id', user.id).order('created_at'),
       ])
-      setProfile(profileRes.data)
       setTickets(ticketsRes.data ?? [])
       setDashboards(dashboardsRes.data ?? [])
       setLoading(false)
