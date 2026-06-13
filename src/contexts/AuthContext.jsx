@@ -41,12 +41,13 @@ export function AuthProvider({ children }) {
       clearTimeout(loadingTimeout)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user?.id) {
-        const { profile, isAdmin } = await fetchUserData(session.user.id)
-        setProfile(profile)
-        setIsAdmin(isAdmin)
+        fetchUserData(session.user.id).then(({ profile, isAdmin }) => {
+          setProfile(profile)
+          setIsAdmin(isAdmin)
+        })
       } else {
         setProfile(null)
         setIsAdmin(false)
