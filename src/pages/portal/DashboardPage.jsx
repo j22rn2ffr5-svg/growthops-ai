@@ -171,7 +171,7 @@ export default function DashboardPage() {
               return (
                 <Link
                   key={ticket.id}
-                  to="/portal/tickets"
+                  to={`/portal/tickets/${ticket.id}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <div

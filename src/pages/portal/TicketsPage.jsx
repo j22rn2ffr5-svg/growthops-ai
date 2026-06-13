@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Plus, Ticket, Search } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -22,8 +22,13 @@ export const priorityConfig = {
 
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
 
+function ticketRef(ref) {
+  return `TK-${String(ref).padStart(3, '0')}`
+}
+
 export default function TicketsPage() {
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
   const [tickets, setTickets]       = useState([])
   const [milestones, setMilestones] = useState([])
   const [loading, setLoading]       = useState(true)
@@ -162,7 +167,8 @@ export default function TicketsPage() {
               className="grid grid-cols-12 gap-4 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-600"
               style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}
             >
-              <div className="col-span-5">Title</div>
+              <div className="col-span-1">Ref</div>
+              <div className="col-span-4">Title</div>
               <div className="col-span-2">Category</div>
               <div className="col-span-2">Priority</div>
               <div className="col-span-2">Status</div>
@@ -176,13 +182,21 @@ export default function TicketsPage() {
               return (
                 <div
                   key={ticket.id}
-                  className="grid grid-cols-12 gap-4 px-5 py-4 items-center"
+                  onClick={() => navigate(`/portal/tickets/${ticket.id}`)}
+                  className="grid grid-cols-12 gap-4 px-5 py-4 items-center cursor-pointer"
                   style={{
                     borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
                     background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent',
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.05)'}
+                  onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent'}
                 >
-                  <div className="col-span-5">
+                  <div className="col-span-1">
+                    <span className="text-xs font-mono font-semibold" style={{ color: '#4b5563' }}>
+                      {ticket.ref ? ticketRef(ticket.ref) : '—'}
+                    </span>
+                  </div>
+                  <div className="col-span-4">
                     <p className="text-sm font-medium text-white truncate">{ticket.title}</p>
                     {ticket.description && (
                       <p className="text-xs text-gray-600 truncate mt-0.5">{ticket.description}</p>

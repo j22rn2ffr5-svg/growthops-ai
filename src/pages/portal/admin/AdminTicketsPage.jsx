@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, ChevronDown, Send, LayoutList, Layers } from 'lucide-react'
+import { Search, ChevronDown, Send, LayoutList, Layers, ExternalLink } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from '../TicketsPage'
+
+function ticketRef(ref) {
+  return `TK-${String(ref).padStart(3, '0')}`
+}
 
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
 const PRIORITY_FILTERS = ['all', 'urgent', 'high', 'normal', 'low']
@@ -211,30 +216,48 @@ export default function AdminTicketsPage() {
     return (
       <div key={ticket.id} className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Ticket header */}
-        <button
-          onClick={() => handleExpand(ticket.id)}
-          className="w-full flex items-center gap-4 px-5 py-4 text-left transition-colors"
+        <div
+          className="flex items-center gap-4 px-5 py-4"
           style={{ background: isExpanded ? 'rgba(59,130,246,0.05)' : 'rgba(255,255,255,0.015)' }}
         >
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {ticketIsNew && (
-                <span className="relative flex h-2 w-2 flex-shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#3b82f6' }} />
-                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#60a5fa' }} />
-                </span>
-              )}
-              <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
-              {ticketIsNew && <span className="text-xs font-bold px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}>New</span>}
+          <button
+            onClick={() => handleExpand(ticket.id)}
+            className="flex-1 flex items-center gap-4 text-left min-w-0"
+          >
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                {ticket.ref && (
+                  <span className="text-xs font-mono font-semibold flex-shrink-0" style={{ color: '#4b5563' }}>
+                    {ticketRef(ticket.ref)}
+                  </span>
+                )}
+                {ticketIsNew && (
+                  <span className="relative flex h-2 w-2 flex-shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#3b82f6' }} />
+                    <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#60a5fa' }} />
+                  </span>
+                )}
+                <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
+                {ticketIsNew && <span className="text-xs font-bold px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}>New</span>}
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">{ticket.category} · {date}</p>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">{ticket.category} · {date}</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: pc.bg, color: pc.color }}>{ticket.priority ?? 'normal'}</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
-            <ChevronDown size={14} color="#6b7280" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-          </div>
-        </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: pc.bg, color: pc.color }}>{ticket.priority ?? 'normal'}</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
+              <ChevronDown size={14} color="#6b7280" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            </div>
+          </button>
+          <Link
+            to={`/portal/tickets/${ticket.id}`}
+            title="Open ticket detail"
+            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors hover:bg-white/10"
+            style={{ color: '#4b5563' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <ExternalLink size={13} />
+          </Link>
+        </div>
 
         {/* Expanded content */}
         {isExpanded && (
