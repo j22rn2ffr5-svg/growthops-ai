@@ -38,13 +38,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const [ticketsRes, dashboardsRes] = await Promise.all([
-        supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
-        supabase.from('client_dashboards').select('*').eq('user_id', user.id).order('created_at'),
-      ])
-      setTickets(ticketsRes.data ?? [])
-      setDashboards(dashboardsRes.data ?? [])
-      setLoading(false)
+      try {
+        const [ticketsRes, dashboardsRes] = await Promise.all([
+          supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+          supabase.from('client_dashboards').select('*').eq('user_id', user.id).order('created_at'),
+        ])
+        setTickets(ticketsRes.data ?? [])
+        setDashboards(dashboardsRes.data ?? [])
+      } finally {
+        setLoading(false)
+      }
     }
     fetchData()
   }, [user.id])
