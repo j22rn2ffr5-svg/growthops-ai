@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { Plus, Ticket, Search } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import ProjectTracker from '../../components/portal/ProjectTracker'
+import MilestonesTracker from '../../components/portal/MilestonesTracker'
 
 export const statusConfig = {
   open:        { label: 'Open',        color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
@@ -21,23 +23,24 @@ export const priorityConfig = {
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
 
 export default function TicketsPage() {
-  const { user } = useAuth()
-  const [tickets, setTickets] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter]   = useState('all')
-  const [search, setSearch]   = useState('')
+  const { user, profile } = useAuth()
+  const [tickets, setTickets]       = useState([])
+  const [milestones, setMilestones] = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [filter, setFilter]         = useState('all')
+  const [search, setSearch]         = useState('')
 
   useEffect(() => {
-    async function fetchTickets() {
-      const { data } = await supabase
-        .from('tickets')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      setTickets(data ?? [])
+    async function fetchData() {
+      const [ticketsRes, milestonesRes] = await Promise.all([
+        supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('client_milestones').select('*').eq('user_id', user.id).order('sort_order').order('created_at'),
+      ])
+      setTickets(ticketsRes.data ?? [])
+      setMilestones(milestonesRes.data ?? [])
       setLoading(false)
     }
-    fetchTickets()
+    fetchData()
   }, [user.id])
 
   const filtered = tickets.filter(t => {
@@ -48,6 +51,12 @@ export default function TicketsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Project status + milestones */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-4">
+        <ProjectTracker status={profile?.project_status ?? 'onboarding'} />
+        <MilestonesTracker milestones={milestones} />
+      </motion.div>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
