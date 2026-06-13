@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Plus, Trash2, Pencil, CalendarDays, Check, Send } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Pencil, CalendarDays, Check, Send, Sparkles, X } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from './TicketsPage'
@@ -130,15 +130,17 @@ export default function TicketDetailPage() {
   const navigate = useNavigate()
   const { user, isAdmin } = useAuth()
 
-  const [ticket, setTicket]         = useState(null)
-  const [tasks, setTasks]           = useState([])
-  const [replies, setReplies]       = useState([])
-  const [loading, setLoading]       = useState(true)
+  const [ticket, setTicket]           = useState(null)
+  const [tasks, setTasks]             = useState([])
+  const [replies, setReplies]         = useState([])
+  const [loading, setLoading]         = useState(true)
   const [showAddTask, setShowAddTask] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
-  const [taskSaving, setTaskSaving] = useState(false)
-  const [replyText, setReplyText]   = useState('')
+  const [taskSaving, setTaskSaving]   = useState(false)
+  const [replyText, setReplyText]     = useState('')
   const [replySending, setReplySending] = useState(false)
+  const [aiLoading, setAiLoading]     = useState(false)
+  const [suggestions, setSuggestions] = useState(null) // null | array
 
   useEffect(() => {
     async function fetchData() {
@@ -210,6 +212,47 @@ export default function TicketDetailPage() {
   async function handleDeleteTask(taskId) {
     await supabase.from('ticket_tasks').delete().eq('id', taskId)
     setTasks(prev => prev.filter(t => t.id !== taskId))
+  }
+
+  async function handleAISuggest() {
+    setAiLoading(true)
+    setSuggestions(null)
+    try {
+      const res = await fetch('/api/suggest-tasks', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          title:       ticket.title,
+          description: ticket.description,
+          category:    ticket.category,
+          adminUserId: user.id,
+        }),
+      })
+      const data = await res.json()
+      if (data.tasks) {
+        setSuggestions(data.tasks.map(t => ({ ...t, selected: true })))
+        setShowAddTask(false)
+        setEditingTask(null)
+      }
+    } catch {
+      // silently fail — user can retry
+    }
+    setAiLoading(false)
+  }
+
+  async function handleAddSuggestions() {
+    const toAdd = (suggestions ?? []).filter(s => s.selected)
+    setTaskSaving(true)
+    for (const s of toAdd) {
+      const { data } = await supabase
+        .from('ticket_tasks')
+        .insert({ ticket_id: id, title: s.title, due_date: s.due_date || null })
+        .select()
+        .single()
+      if (data) setTasks(prev => [...prev, data])
+    }
+    setSuggestions(null)
+    setTaskSaving(false)
   }
 
   async function handleReply() {
@@ -364,14 +407,25 @@ export default function TicketDetailPage() {
               <p className="text-xs text-gray-600 mt-0.5">{completedCount} of {tasks.length} complete</p>
             )}
           </div>
-          {isAdmin && !showAddTask && !editingTask && (
-            <button
-              onClick={() => setShowAddTask(true)}
-              className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors"
-              style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}
-            >
-              <Plus size={11} /> Add Task
-            </button>
+          {isAdmin && !showAddTask && !editingTask && !suggestions && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleAISuggest}
+                disabled={aiLoading}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-all disabled:opacity-50"
+                style={{ background: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.25)' }}
+              >
+                <Sparkles size={11} />
+                {aiLoading ? 'Thinking…' : 'AI Suggest'}
+              </button>
+              <button
+                onClick={() => setShowAddTask(true)}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors"
+                style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}
+              >
+                <Plus size={11} /> Add Task
+              </button>
+            </div>
           )}
         </div>
 
@@ -381,6 +435,79 @@ export default function TicketDetailPage() {
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #3b82f6, #7c3aed)' }}
             />
+          </div>
+        )}
+
+        {/* AI suggestions panel */}
+        {suggestions && (
+          <div className="mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(167,139,250,0.25)' }}>
+            <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(167,139,250,0.08)' }}>
+              <div className="flex items-center gap-2">
+                <Sparkles size={13} color="#a78bfa" />
+                <span className="text-xs font-semibold" style={{ color: '#a78bfa' }}>AI suggested tasks</span>
+              </div>
+              <button onClick={() => setSuggestions(null)} className="text-gray-600 hover:text-gray-400 transition-colors">
+                <X size={13} />
+              </button>
+            </div>
+            <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              {suggestions.map((s, i) => {
+                const due = s.due_date
+                  ? new Date(s.due_date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })
+                  : null
+                return (
+                  <label
+                    key={i}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors"
+                    style={{ background: s.selected ? 'rgba(167,139,250,0.05)' : 'transparent' }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={s.selected}
+                      onChange={() => setSuggestions(prev => prev.map((x, j) => j === i ? { ...x, selected: !x.selected } : x))}
+                      className="accent-violet-500 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white font-medium truncate">{s.title}</p>
+                      {due && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <CalendarDays size={10} color="#6b7280" />
+                          <span className="text-xs text-gray-500">{due}</span>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="date"
+                      value={s.due_date ?? ''}
+                      onClick={e => e.stopPropagation()}
+                      onChange={e => setSuggestions(prev => prev.map((x, j) => j === i ? { ...x, due_date: e.target.value || null } : x))}
+                      className="text-xs text-gray-400 rounded-lg px-2 py-1 outline-none flex-shrink-0"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', colorScheme: 'dark' }}
+                    />
+                  </label>
+                )
+              })}
+            </div>
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <span className="text-xs text-gray-600">{suggestions.filter(s => s.selected).length} of {suggestions.length} selected</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSuggestions(null)}
+                  className="px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  Dismiss
+                </button>
+                <button
+                  onClick={handleAddSuggestions}
+                  disabled={taskSaving || suggestions.filter(s => s.selected).length === 0}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-40 transition-all"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #3b82f6)' }}
+                >
+                  <Plus size={11} />
+                  {taskSaving ? 'Adding…' : `Add ${suggestions.filter(s => s.selected).length} task${suggestions.filter(s => s.selected).length !== 1 ? 's' : ''}`}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
