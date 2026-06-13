@@ -115,12 +115,14 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className="space-y-4">
                   {/* Email */}
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    <label htmlFor="email" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Email address
                     </label>
                     <div className="relative">
                       <Mail size={14} color="#4b5563" className="absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input
+                        id="email"
+                        name="email"
                         type="email"
                         required
                         value={email}
@@ -136,12 +138,14 @@ export default function LoginPage() {
 
                   {/* Password */}
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    <label htmlFor="password" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Password
                     </label>
                     <div className="relative">
                       <Lock size={14} color="#4b5563" className="absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input
+                        id="password"
+                        name="password"
                         type={showPass ? 'text' : 'password'}
                         required
                         value={password}
@@ -209,12 +213,14 @@ export default function LoginPage() {
                     )}
                     <form onSubmit={handleReset} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        <label htmlFor="reset-email" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                           Email address
                         </label>
                         <div className="relative">
                           <Mail size={14} color="#4b5563" className="absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
+                            id="reset-email"
+                            name="email"
                             type="email"
                             required
                             value={email}
