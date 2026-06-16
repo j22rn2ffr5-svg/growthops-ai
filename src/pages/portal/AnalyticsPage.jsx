@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, ExternalLink, Plus } from 'lucide-react'
+import { BarChart3, ExternalLink, Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+
+const isPlaceholder = url => !url || url.includes('REPLACE_WITH')
 
 export default function AnalyticsPage() {
   const { user } = useAuth()
@@ -108,22 +110,44 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          {/* Embedded report */}
+          {/* Embedded report or placeholder */}
           {activeDash && (
-            <div
-              className="rounded-2xl overflow-hidden"
-              style={{ border: '1px solid rgba(255,255,255,0.07)', height: '620px' }}
-            >
-              <iframe
-                src={activeDash.embed_url}
-                title={activeDash.name}
-                width="100%"
-                height="100%"
-                style={{ border: 'none' }}
-                allowFullScreen
-                sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-              />
-            </div>
+            isPlaceholder(activeDash.embed_url) ? (
+              <motion.div
+                key={activeDash.id + '-placeholder'}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="rounded-2xl flex flex-col items-center justify-center text-center"
+                style={{ border: '1px dashed rgba(255,255,255,0.08)', height: '620px', background: 'rgba(255,255,255,0.01)' }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
+                >
+                  <Clock size={26} color="#3b82f6" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-2">Dashboard being set up</h3>
+                <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
+                  Your <span className="text-gray-400">{activeDash.name}</span> dashboard is being configured. We'll notify you as soon as it's live.
+                </p>
+              </motion.div>
+            ) : (
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ border: '1px solid rgba(255,255,255,0.07)', height: '620px' }}
+              >
+                <iframe
+                  src={activeDash.embed_url}
+                  title={activeDash.name}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 'none' }}
+                  allowFullScreen
+                  sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                />
+              </div>
+            )
           )}
         </motion.div>
       )}
