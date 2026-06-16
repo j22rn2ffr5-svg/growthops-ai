@@ -141,9 +141,10 @@ export default function AICopyTool() {
                 <Pill
                   key={p}
                   active={platforms.includes(p)}
-                  onClick={() => setPlatforms(prev =>
-                    prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
-                  )}
+                  onClick={() => setPlatforms(prev => {
+                    if (prev.includes(p)) return prev.length > 1 ? prev.filter(x => x !== p) : prev
+                    return [...prev, p]
+                  })}
                 >
                   {p}
                 </Pill>
