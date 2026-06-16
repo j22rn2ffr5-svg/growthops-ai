@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Megaphone, Mail, FlaskConical } from 'lucide-react'
+import { Search, Megaphone, Mail } from 'lucide-react'
 import SeoTab      from '../../components/portal/performance/SeoTab'
 import PaidAdsTab  from '../../components/portal/performance/PaidAdsTab'
 import EmailSmsTab from '../../components/portal/performance/EmailSmsTab'
-import CroTab      from '../../components/portal/performance/CroTab'
 
 const TABS = [
-  { id: 'seo',    label: 'SEO',          icon: Search,      desc: 'Organic search rankings, traffic, and keyword performance.' },
-  { id: 'ads',    label: 'Paid Ads',     icon: Megaphone,   desc: 'Google and Meta campaign spend, impressions, clicks, and ROAS.' },
-  { id: 'email',  label: 'Email & SMS',  icon: Mail,        desc: 'Campaign stats and active nurture sequences.' },
-  { id: 'cro',    label: 'CRO',          icon: FlaskConical,desc: 'A/B test results and conversion rate improvements.' },
+  { id: 'seo',    label: 'SEO',          icon: Search,    desc: 'Organic search rankings, traffic, and keyword performance.' },
+  { id: 'ads',    label: 'Paid Ads',     icon: Megaphone, desc: 'Google and Meta campaign spend, impressions, clicks, and ROAS.' },
+  { id: 'email',  label: 'Email & SMS',  icon: Mail,      desc: 'Campaign stats and active nurture sequences.' },
 ]
 
 export default function PerformancePage() {
@@ -44,7 +42,6 @@ export default function PerformancePage() {
         {active === 'seo'   && <SeoTab />}
         {active === 'ads'   && <PaidAdsTab />}
         {active === 'email' && <EmailSmsTab />}
-        {active === 'cro'   && <CroTab />}
       </motion.div>
     </div>
   )
