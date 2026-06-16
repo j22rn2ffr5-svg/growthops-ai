@@ -22,9 +22,12 @@ const STATUSES = [
   { id: 'published', label: 'Published', color: '#10b981' },
 ]
 
-const EMPTY = { title: '', content: '', platform: 'linkedin', content_type: 'post', status: 'draft', scheduled_date: '' }
+const EMPTY = { title: '', content: '', platforms: ['linkedin'], content_type: 'post', status: 'draft', scheduled_date: '' }
 
-function platformColor(id) { return PLATFORMS.find(p => p.id === id)?.color ?? '#6b7280' }
+function platformColor(id) {
+  const first = (id ?? '').split(',')[0].trim()
+  return PLATFORMS.find(p => p.id === first)?.color ?? '#6b7280'
+}
 
 export default function ContentCalendar() {
   const { user } = useAuth()
@@ -76,7 +79,8 @@ export default function ContentCalendar() {
   async function handleSave() {
     if (!form.title.trim() || !form.scheduled_date) return
     setSaving(true)
-    await supabase.from('content_calendar').insert({ user_id: user.id, ...form })
+    const { platforms, ...rest } = form
+    await supabase.from('content_calendar').insert({ user_id: user.id, ...rest, platform: platforms.join(',') })
     setSaving(false)
     setShowForm(false)
     loadEntries()
@@ -216,19 +220,25 @@ export default function ContentCalendar() {
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Platform</label>
                   <div className="flex flex-wrap gap-1.5">
-                    {PLATFORMS.map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => setForm(f => ({ ...f, platform: p.id }))}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                        style={form.platform === p.id
-                          ? { background: `${p.color}22`, color: p.color, border: `1px solid ${p.color}55` }
-                          : { background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)' }
-                        }
-                      >
-                        {p.label}
-                      </button>
-                    ))}
+                    {PLATFORMS.map(p => {
+                      const active = form.platforms.includes(p.id)
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setForm(f => {
+                            if (f.platforms.includes(p.id)) return f.platforms.length > 1 ? { ...f, platforms: f.platforms.filter(x => x !== p.id) } : f
+                            return { ...f, platforms: [...f.platforms, p.id] }
+                          })}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                          style={active
+                            ? { background: `${p.color}22`, color: p.color, border: `1px solid ${p.color}55` }
+                            : { background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)' }
+                          }
+                        >
+                          {p.label}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
