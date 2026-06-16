@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Ticket, Search } from 'lucide-react'
+import { Plus, Ticket, Search, Wrench } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import ProjectTracker from '../../components/portal/ProjectTracker'
 import MilestonesTracker from '../../components/portal/MilestonesTracker'
+import MaintenanceTab from '../../components/portal/support/MaintenanceTab'
 
 export const statusConfig = {
   open:        { label: 'Open',        color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
@@ -21,6 +22,10 @@ export const priorityConfig = {
 }
 
 const STATUS_FILTERS = ['all', 'open', 'in_progress', 'resolved']
+const TABS = [
+  { id: 'tickets',     label: 'Support Tickets', icon: Ticket },
+  { id: 'maintenance', label: 'Maintenance Log',  icon: Wrench },
+]
 
 function ticketRef(ref) {
   return `TK-${String(ref).padStart(3, '0')}`
@@ -29,6 +34,7 @@ function ticketRef(ref) {
 export default function TicketsPage() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const [activeTab, setActiveTab]   = useState('tickets')
   const [tickets, setTickets]       = useState([])
   const [milestones, setMilestones] = useState([])
   const [loading, setLoading]       = useState(true)
@@ -70,17 +76,46 @@ export default function TicketsPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-extrabold text-white mb-1">Tickets</h1>
-          <p className="text-sm text-gray-500">Raise a request, report a bug, or ask a question.</p>
+          <h1 className="text-2xl font-extrabold text-white mb-1">Support</h1>
+          <p className="text-sm text-gray-500">Raise a request or view your monthly maintenance log.</p>
         </div>
-        <Link
-          to="/portal/tickets/new"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', textDecoration: 'none' }}
-        >
-          <Plus size={15} /> New Ticket
-        </Link>
+        {activeTab === 'tickets' && (
+          <Link
+            to="/portal/tickets/new"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', textDecoration: 'none' }}
+          >
+            <Plus size={15} /> New Ticket
+          </Link>
+        )}
       </motion.div>
+
+      {/* Tabs */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.03 }}
+        className="flex gap-1 p-1 rounded-xl w-fit"
+        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        {TABS.map(t => {
+          const Icon = t.icon
+          const isActive = activeTab === t.id
+          return (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150"
+              style={isActive ? { background: 'rgba(59,130,246,0.2)', color: '#93c5fd' } : { color: '#6b7280' }}>
+              <Icon size={14} />{t.label}
+            </button>
+          )
+        })}
+      </motion.div>
+
+      {/* Maintenance tab */}
+      {activeTab === 'maintenance' && (
+        <motion.div key="maintenance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          <MaintenanceTab />
+        </motion.div>
+      )}
+
+      {/* Tickets tab content below (only shown when activeTab === 'tickets') */}
+      {activeTab === 'tickets' && (<>
 
       {/* Filters + search */}
       <motion.div
@@ -230,6 +265,7 @@ export default function TicketsPage() {
           </div>
         )}
       </motion.div>
+      </>)}
     </div>
   )
 }

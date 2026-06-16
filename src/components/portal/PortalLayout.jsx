@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap, ShieldCheck, Mail, Users, Settings, Megaphone, TrendingUp, GitMerge, Workflow } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap, ShieldCheck, Mail, Users, Settings, Megaphone, TrendingUp, GitMerge, Workflow, Globe } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 const clientNavItems = [
@@ -10,7 +10,8 @@ const clientNavItems = [
   { to: '/portal/pipeline',       label: 'Pipeline',    icon: GitMerge },
   { to: '/portal/automations',    label: 'Automations', icon: Workflow },
   { to: '/portal/marketing',      label: 'Marketing',   icon: Megaphone },
-  { to: '/portal/tickets',        label: 'Tickets',     icon: Ticket },
+  { to: '/portal/website',        label: 'Website',     icon: Globe },
+  { to: '/portal/tickets',        label: 'Support',     icon: Ticket },
   { to: '/portal/settings',       label: 'Settings',    icon: Settings },
 ]
 

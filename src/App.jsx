@@ -29,6 +29,7 @@ const TicketDetailPage     = lazy(() => import('./pages/portal/TicketDetailPage'
 const AnalyticsPage   = lazy(() => import('./pages/portal/AnalyticsPage'))
 const SettingsPage        = lazy(() => import('./pages/portal/SettingsPage'))
 const MarketingPage       = lazy(() => import('./pages/portal/MarketingPage'))
+const WebsitePage         = lazy(() => import('./pages/portal/WebsitePage'))
 const PerformancePage     = lazy(() => import('./pages/portal/PerformancePage'))
 const PipelinePage        = lazy(() => import('./pages/portal/PipelinePage'))
 const AutomationsPage     = lazy(() => import('./pages/portal/AutomationsPage'))
@@ -92,6 +93,7 @@ function PortalApp() {
                   <Route path="pipeline"     element={<PipelinePage />} />
                   <Route path="automations"  element={<AutomationsPage />} />
                   <Route path="marketing"    element={<MarketingPage />} />
+                  <Route path="website"      element={<WebsitePage />} />
                   <Route path="settings" element={<SettingsPage />} />
                   <Route path="admin" element={<AdminDashboardPage />} />
                   <Route path="admin/tickets" element={<AdminTicketsPage />} />
