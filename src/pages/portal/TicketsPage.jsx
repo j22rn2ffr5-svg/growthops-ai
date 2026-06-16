@@ -4,8 +4,6 @@ import { motion } from 'framer-motion'
 import { Plus, Ticket, Search, Wrench } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import ProjectTracker from '../../components/portal/ProjectTracker'
-import MilestonesTracker from '../../components/portal/MilestonesTracker'
 import MaintenanceTab from '../../components/portal/support/MaintenanceTab'
 
 export const statusConfig = {
@@ -32,23 +30,18 @@ function ticketRef(ref) {
 }
 
 export default function TicketsPage() {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab]   = useState('tickets')
   const [tickets, setTickets]       = useState([])
-  const [milestones, setMilestones] = useState([])
   const [loading, setLoading]       = useState(true)
   const [filter, setFilter]         = useState('all')
   const [search, setSearch]         = useState('')
 
   useEffect(() => {
     async function fetchData() {
-      const [ticketsRes, milestonesRes] = await Promise.all([
-        supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('client_milestones').select('*').eq('user_id', user.id).order('sort_order').order('created_at'),
-      ])
-      setTickets(ticketsRes.data ?? [])
-      setMilestones(milestonesRes.data ?? [])
+      const { data } = await supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+      setTickets(data ?? [])
       setLoading(false)
     }
     fetchData()
@@ -62,12 +55,6 @@ export default function TicketsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Project status + milestones */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-4">
-        <ProjectTracker status={profile?.project_status ?? 'onboarding'} />
-        <MilestonesTracker milestones={milestones} />
-      </motion.div>
-
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
