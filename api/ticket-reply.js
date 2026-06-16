@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   const { error: insertError } = await supabase.from('ticket_replies').insert({
     ticket_id: ticketId,
     user_id:   adminUserId,
-    messege:   message.trim(),
+    message:   message.trim(),
   })
 
   if (insertError) {
@@ -57,13 +57,13 @@ export default async function handler(req, res) {
   }
 
   // Fetch client's email and profile
-  const [{ data: { user } }, { data: profile }] = await Promise.all([
+  const [{ data: authData }, { data: profile }] = await Promise.all([
     supabase.auth.admin.getUserById(ticket.user_id),
-    supabase.from('client_profiles').select('company_name').eq('id', ticket.user_id).single(),
+    supabase.from('client_profiles').select('business_name').eq('id', ticket.user_id).single(),
   ])
 
-  const clientEmail = user?.email
-  const clientName  = profile?.company_name ?? 'there'
+  const clientEmail = authData?.user?.email
+  const clientName  = profile?.business_name ?? 'there'
 
   if (!clientEmail) {
     return res.status(200).json({ success: true })

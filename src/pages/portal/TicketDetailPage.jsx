@@ -258,20 +258,30 @@ export default function TicketDetailPage() {
   async function handleReply() {
     if (!replyText.trim()) return
     setReplySending(true)
-    const res = await fetch('/api/ticket-reply', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ ticketId: id, message: replyText.trim(), adminUserId: user.id }),
-    })
-    if (res.ok) {
-      setReplyText('')
-      const { data } = await supabase
-        .from('ticket_replies')
-        .select('*')
-        .eq('ticket_id', id)
-        .order('created_at', { ascending: true })
-      setReplies(data ?? [])
+
+    if (isAdmin) {
+      // Admin replies go through the API so the client gets an email notification
+      await fetch('/api/ticket-reply', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ ticketId: id, message: replyText.trim(), adminUserId: user.id }),
+      })
+    } else {
+      // Client replies insert directly — RLS policy allows this for own tickets
+      await supabase.from('ticket_replies').insert({
+        ticket_id: id,
+        user_id:   user.id,
+        message:   replyText.trim(),
+      })
     }
+
+    setReplyText('')
+    const { data } = await supabase
+      .from('ticket_replies')
+      .select('*')
+      .eq('ticket_id', id)
+      .order('created_at', { ascending: true })
+    setReplies(data ?? [])
     setReplySending(false)
   }
 
@@ -552,57 +562,69 @@ export default function TicketDetailPage() {
         )}
       </motion.div>
 
-      {/* Replies */}
-      {(replies.length > 0 || isAdmin) && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="rounded-2xl p-6 space-y-4"
-          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}
-        >
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            {isAdmin ? 'Reply to Client' : 'Updates'}
-          </p>
+      {/* Conversation thread */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="rounded-2xl p-6 space-y-4"
+        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Conversation</p>
 
-          {replies.length > 0 && (
-            <div className="space-y-2">
-              {replies.map(r => (
-                <div key={r.id} className="flex justify-end">
+        {replies.length === 0 ? (
+          <p className="text-xs text-gray-600 py-2">No messages yet. Send a reply below to start the conversation.</p>
+        ) : (
+          <div className="space-y-3">
+            {replies.map(r => {
+              const isSelf   = r.user_id === user.id
+              const isAdminMsg = r.user_id !== ticket.user_id
+              const senderLabel = isSelf
+                ? 'You'
+                : isAdminMsg ? 'Support Team' : ticket.user_id && 'Client'
+              const time = new Date(r.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+              const dateStr = new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+              return (
+                <div key={r.id} className={`flex flex-col ${isSelf ? 'items-end' : 'items-start'}`}>
+                  <span className="text-xs text-gray-600 mb-1 px-1">{senderLabel} · {dateStr} {time}</span>
                   <div
                     className="max-w-[80%] px-4 py-2.5 text-sm text-white leading-relaxed"
-                    style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', borderRadius: '16px 16px 4px 16px' }}
+                    style={isSelf
+                      ? { background: 'linear-gradient(135deg, #3b82f6, #7c3aed)', borderRadius: '16px 16px 4px 16px' }
+                      : { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: '16px 16px 16px 4px' }
+                    }
                   >
-                    {r.messege}
+                    {r.message}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              )
+            })}
+          </div>
+        )}
 
-          {isAdmin && (
-            <div className="flex gap-2">
-              <textarea
-                value={replyText}
-                onChange={e => setReplyText(e.target.value)}
-                placeholder="Type your reply…"
-                rows={2}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none resize-none"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-              />
-              <button
-                onClick={handleReply}
-                disabled={replySending || !replyText.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
-                style={{ background: replySending || !replyText.trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
-              >
-                <Send size={14} />
-                {replySending ? 'Sending…' : 'Send'}
-              </button>
-            </div>
-          )}
-        </motion.div>
-      )}
+        {/* Reply input — available to both admin and client */}
+        <div className="flex gap-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <textarea
+            value={replyText}
+            onChange={e => setReplyText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleReply() }}
+            placeholder={isAdmin ? 'Reply to client… (Ctrl+Enter to send)' : 'Send a message… (Ctrl+Enter to send)'}
+            rows={2}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none resize-none"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+          <button
+            onClick={handleReply}
+            disabled={replySending || !replyText.trim()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 self-end"
+            style={{ background: replySending || !replyText.trim() ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
+          >
+            <Send size={14} />
+            {replySending ? 'Sending…' : 'Send'}
+          </button>
+        </div>
+      </motion.div>
     </div>
   )
 }
