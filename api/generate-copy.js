@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server.' })
   }
 
-  const { tool, platform, tone, businessContext, request, brief, campaignBrief } = req.body ?? {}
+  const { tool, platform, tone, businessContext, request, brief, campaignBrief, imageBase64, imageMimeType } = req.body ?? {}
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
@@ -36,7 +36,8 @@ export default async function handler(req, res) {
       blog_intro:     'a compelling blog introduction (2–3 paragraphs)',
     }
     const desc = toolDescriptions[tool] ?? 'marketing copy'
-    systemInstruction = `You are an expert marketing copywriter. Write ${desc}. Tone: ${tone || 'professional'}. Output only the copy — no preamble, no meta-commentary.`
+    const imageContext = imageBase64 ? ' An image has been provided — analyse it and ensure the copy directly relates to and enhances what is shown in the image.' : ''
+    systemInstruction = `You are an expert marketing copywriter. Write ${desc}. Tone: ${tone || 'professional'}.${imageContext} Output only the copy — no preamble, no meta-commentary.`
     const briefLines = campaignBrief ? [
       '\n\nCampaign brief context (use this to inform the copy):',
       `Campaign: ${campaignBrief.name}`,
@@ -50,8 +51,14 @@ export default async function handler(req, res) {
   }
 
   try {
+    const parts = []
+    if (imageBase64 && imageMimeType) {
+      parts.push({ inlineData: { data: imageBase64, mimeType: imageMimeType } })
+    }
+    parts.push({ text: userPrompt })
+
     const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      contents: [{ role: 'user', parts }],
       systemInstruction: { parts: [{ text: systemInstruction }] },
     })
     return res.status(200).json({ output: result.response.text() })

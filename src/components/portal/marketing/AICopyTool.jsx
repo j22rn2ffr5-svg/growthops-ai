@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Copy, Bookmark, Trash2, Check, Loader2, FileText, X } from 'lucide-react'
+import { Sparkles, Copy, Bookmark, Trash2, Check, Loader2, FileText, X, ImagePlus, ArrowLeft, Edit3 } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 
 const TOOLS = [
   { id: 'social_post',    label: 'Social Post' },
-  { id: 'ad_copy',       label: 'Ad Copy' },
-  { id: 'email_subject', label: 'Email Subjects' },
-  { id: 'blog_intro',    label: 'Blog Intro' },
+  { id: 'ad_copy',        label: 'Ad Copy' },
+  { id: 'email_subject',  label: 'Email Subjects' },
+  { id: 'blog_intro',     label: 'Blog Intro' },
 ]
 
 const PLATFORMS = ['LinkedIn', 'Instagram', 'X (Twitter)', 'Facebook']
 
 const TONES = [
   { id: 'professional',    label: 'Professional' },
-  { id: 'friendly',       label: 'Friendly' },
-  { id: 'bold',           label: 'Bold' },
-  { id: 'conversational', label: 'Conversational' },
+  { id: 'friendly',        label: 'Friendly' },
+  { id: 'bold',            label: 'Bold' },
+  { id: 'conversational',  label: 'Conversational' },
 ]
 
 const card  = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem' }
@@ -38,21 +38,111 @@ function Pill({ active, onClick, children }) {
   )
 }
 
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload  = () => resolve({ base64: reader.result.split(',')[1], mimeType: file.type })
+    reader.onerror = reject
+  })
+}
+
+// ─── Review Screen ───────────────────────────────────────────────────────────
+function ReviewScreen({ imagePreview, output, platforms, onBack, onSave, onCopy, saved, copied }) {
+  const [copy, setCopy] = useState(output)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 40 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-5"
+    >
+      {/* Back */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-300 transition-colors"
+      >
+        <ArrowLeft size={14} /> Back to edit
+      </button>
+
+      <div className={`gap-6 ${imagePreview ? 'grid lg:grid-cols-2' : ''}`}>
+        {/* Image */}
+        {imagePreview && (
+          <div style={card} className="overflow-hidden rounded-2xl">
+            <img src={imagePreview} alt="Post image" className="w-full object-cover" style={{ maxHeight: '420px' }} />
+            <div className="px-4 py-3 flex flex-wrap gap-1.5">
+              {platforms.map(p => (
+                <span key={p} className="text-xs px-2 py-0.5 rounded-md font-medium"
+                  style={{ background: 'rgba(59,130,246,0.12)', color: '#93c5fd' }}>{p}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Copy editor */}
+        <div style={card} className="p-5 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-white">Generated copy</p>
+            <Edit3 size={13} color="#4b5563" />
+          </div>
+          <textarea
+            value={copy}
+            onChange={e => setCopy(e.target.value)}
+            rows={imagePreview ? 12 : 8}
+            className="flex-1 resize-none text-sm text-gray-200 leading-relaxed outline-none rounded-xl p-4"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', minHeight: '180px' }}
+          />
+          <div className="flex gap-3">
+            <button
+              onClick={() => onCopy(copy)}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: copied ? '#34d399' : '#9ca3af' }}
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              onClick={() => onSave(copy)}
+              disabled={saved}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all"
+              style={{
+                background: saved ? 'rgba(52,211,153,0.1)' : 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+                border: saved ? '1px solid rgba(52,211,153,0.3)' : 'none',
+                color: saved ? '#34d399' : 'white',
+              }}
+            >
+              <Bookmark size={14} />
+              {saved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function AICopyTool() {
   const { user, profile } = useAuth()
-  const [tool, setTool]           = useState('social_post')
-  const [platforms, setPlatforms] = useState(['LinkedIn'])
-  const [tone, setTone]           = useState('professional')
-  const [context, setContext]     = useState('')
-  const [request, setRequest]     = useState('')
-  const [output, setOutput]       = useState('')
+  const [tool, setTool]             = useState('social_post')
+  const [platforms, setPlatforms]   = useState(['LinkedIn'])
+  const [tone, setTone]             = useState('professional')
+  const [context, setContext]       = useState('')
+  const [request, setRequest]       = useState('')
+  const [output, setOutput]         = useState('')
   const [generating, setGenerating] = useState(false)
-  const [error, setError]         = useState(null)
-  const [copied, setCopied]       = useState(false)
-  const [saved, setSaved]         = useState(false)
+  const [error, setError]           = useState(null)
+  const [copied, setCopied]         = useState(false)
+  const [saved, setSaved]           = useState(false)
   const [savedCopies, setSavedCopies] = useState([])
-  const [briefs, setBriefs]       = useState([])
+  const [briefs, setBriefs]         = useState([])
   const [selectedBrief, setSelectedBrief] = useState(null)
+  const [imageFile, setImageFile]   = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [reviewMode, setReviewMode] = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     if (profile?.business_name) setContext(profile.business_name)
@@ -85,13 +175,36 @@ export default function AICopyTool() {
     setSelectedBrief(briefs.find(b => b.id === id) ?? null)
   }
 
+  function handleImageChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 3 * 1024 * 1024) { alert('Image must be under 3MB.'); return }
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  function clearImage() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImageFile(null)
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   async function handleGenerate() {
     if (!request.trim()) return
     setGenerating(true)
     setError(null)
     setOutput('')
     setSaved(false)
+    setCopied(false)
     try {
+      let imageBase64 = null, imageMimeType = null
+      if (imageFile && tool === 'social_post') {
+        const img = await fileToBase64(imageFile)
+        imageBase64  = img.base64
+        imageMimeType = img.mimeType
+      }
+
       const res = await fetch('/api/generate-copy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,11 +215,14 @@ export default function AICopyTool() {
           businessContext: context,
           request: request.trim(),
           campaignBrief: selectedBrief ?? null,
+          imageBase64,
+          imageMimeType,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Generation failed')
       setOutput(data.output)
+      if (tool === 'social_post') setReviewMode(true)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -114,18 +230,18 @@ export default function AICopyTool() {
     }
   }
 
-  async function handleSave() {
-    if (!output || saved) return
+  async function handleSave(text = output) {
+    if (!text || saved) return
     const { error: dbErr } = await supabase.from('marketing_copies').insert({
       user_id: user.id, tool,
       platform: tool === 'social_post' ? platforms.join(', ') : null,
-      tone, prompt: request, output,
+      tone, prompt: request, output: text,
     })
     if (!dbErr) { setSaved(true); loadSaved() }
   }
 
-  async function handleCopy() {
-    await navigator.clipboard.writeText(output)
+  async function handleCopy(text = output) {
+    await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -137,16 +253,36 @@ export default function AICopyTool() {
 
   const toolLabel = TOOLS.find(t => t.id === tool)?.label ?? ''
 
+  // ── Review screen (social post only) ──────────────────────────────────────
+  if (reviewMode && tool === 'social_post') {
+    return (
+      <ReviewScreen
+        imagePreview={imagePreview}
+        output={output}
+        platforms={platforms}
+        copied={copied}
+        saved={saved}
+        onBack={() => setReviewMode(false)}
+        onCopy={handleCopy}
+        onSave={handleSave}
+      />
+    )
+  }
+
+  // ── Form view ─────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
-      {/* Input card */}
       <div style={card} className="p-6 space-y-5">
 
         {/* Tool */}
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">Content type</label>
           <div className="flex flex-wrap gap-2">
-            {TOOLS.map(t => <Pill key={t.id} active={tool === t.id} onClick={() => setTool(t.id)}>{t.label}</Pill>)}
+            {TOOLS.map(t => (
+              <Pill key={t.id} active={tool === t.id} onClick={() => { setTool(t.id); setReviewMode(false); clearImage() }}>
+                {t.label}
+              </Pill>
+            ))}
           </div>
         </div>
 
@@ -206,7 +342,6 @@ export default function AICopyTool() {
             ))}
           </select>
 
-          {/* Selected brief summary card */}
           <AnimatePresence>
             {selectedBrief && (
               <motion.div
@@ -257,6 +392,46 @@ export default function AICopyTool() {
           </AnimatePresence>
         </div>
 
+        {/* Image upload (social post only) */}
+        {tool === 'social_post' && (
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Post image <span className="normal-case font-normal text-gray-600">(optional — AI will write copy to match)</span>
+            </label>
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                <img src={imagePreview} alt="Preview" className="w-full object-cover max-h-48" />
+                <button
+                  onClick={clearImage}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(0,0,0,0.65)' }}
+                >
+                  <X size={12} color="white" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex flex-col items-center gap-2 py-5 rounded-xl transition-colors"
+                style={{ border: '1px dashed rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.02)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+              >
+                <ImagePlus size={20} color="#4b5563" />
+                <span className="text-xs text-gray-600">Click to upload image · JPG, PNG, WebP · Max 3MB</span>
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
+        )}
+
         {/* Request */}
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">What would you like to create?</label>
@@ -292,15 +467,15 @@ export default function AICopyTool() {
         </button>
       </div>
 
-      {/* Output */}
+      {/* Output (non-social-post tools) */}
       <AnimatePresence>
-        {output && (
+        {output && tool !== 'social_post' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={card} className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-white">Generated {toolLabel}</h3>
               <div className="flex gap-2">
                 <button
-                  onClick={handleCopy}
+                  onClick={() => handleCopy()}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: copied ? '#34d399' : '#9ca3af' }}
                 >
@@ -308,7 +483,7 @@ export default function AICopyTool() {
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
                 <button
-                  onClick={handleSave}
+                  onClick={() => handleSave()}
                   disabled={saved}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{ background: saved ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.06)', border: `1px solid ${saved ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.1)'}`, color: saved ? '#34d399' : '#9ca3af' }}
@@ -326,7 +501,7 @@ export default function AICopyTool() {
       {/* Saved copies */}
       {savedCopies.length > 0 && (
         <div style={card} className="p-6 space-y-4">
-          <h3 className="text-sm font-semibold text-white">Saved copies</h3>
+          <h3 className="text-sm font-bold text-white">Saved copies</h3>
           <div className="space-y-3">
             {savedCopies.map(copy => (
               <div key={copy.id} className="group rounded-xl p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
