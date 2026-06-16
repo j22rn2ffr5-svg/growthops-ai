@@ -102,7 +102,7 @@ export default function PortalLayout({ children }) {
       )}
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-scroll">
         {navItems.map(item => (
           <NavItem key={item.to} {...item} onClick={onClose} />
         ))}
