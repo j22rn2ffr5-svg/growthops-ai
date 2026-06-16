@@ -1,8 +1,140 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ChevronDown, Check, Plus, Trash2, Pencil, X, Database } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown, Check, Plus, Trash2, Pencil, X, Database, UserPlus, Eye, EyeOff, RefreshCw, Copy, CheckCircle2 } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
+
+const PACKAGES = ['Starter System', 'Growth System', 'Scale System']
+const inp = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.5rem', color: 'white', outline: 'none', padding: '8px 12px', fontSize: '14px', width: '100%' }
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$'
+  return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
+
+function CreateClientForm({ onSuccess, onCancel }) {
+  const [form, setForm]         = useState({ email: '', password: generatePassword(), business_name: '', package: '', account_manager: 'Chris Eyres' })
+  const [showPass, setShowPass] = useState(false)
+  const [saving, setSaving]     = useState(false)
+  const [error, setError]       = useState(null)
+  const [created, setCreated]   = useState(null)
+  const [copied, setCopied]     = useState(false)
+
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!form.email || !form.password || !form.business_name) return
+    setSaving(true); setError(null)
+    try {
+      const res = await fetch('/api/create-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to create client')
+      setCreated({ email: form.email, password: form.password })
+      onSuccess()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function copyCredentials() {
+    await navigator.clipboard.writeText(`Email: ${created.email}\nPassword: ${created.password}`)
+    setCopied(true); setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (created) return (
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl p-6 space-y-4"
+      style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.2)' }}>
+      <div className="flex items-center gap-2">
+        <CheckCircle2 size={16} color="#34d399" />
+        <p className="text-sm font-bold text-white">Client account created</p>
+      </div>
+      <div className="rounded-xl p-4 space-y-2 font-mono text-sm" style={{ background: 'rgba(0,0,0,0.25)' }}>
+        <p><span className="text-gray-500">Email: </span><span className="text-white">{created.email}</span></p>
+        <p><span className="text-gray-500">Password: </span><span className="text-white">{created.password}</span></p>
+      </div>
+      <div className="flex gap-3">
+        <button onClick={copyCredentials}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: copied ? '#34d399' : '#9ca3af' }}>
+          {copied ? <CheckCircle2 size={13} /> : <Copy size={13} />}
+          {copied ? 'Copied!' : 'Copy credentials'}
+        </button>
+        <button onClick={onCancel} className="px-4 py-2 rounded-xl text-sm text-gray-500 hover:text-gray-300 transition-colors">Done</button>
+      </div>
+    </motion.div>
+  )
+
+  return (
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl p-6 space-y-5"
+      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-white">Add New Client</h3>
+        <button onClick={onCancel} className="text-gray-600 hover:text-gray-400 transition-colors"><X size={16} /></button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Business Name *</label>
+            <input style={inp} value={form.business_name} onChange={set('business_name')} placeholder="Apex Talent Solutions" required />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email *</label>
+            <input style={inp} type="email" value={form.email} onChange={set('email')} placeholder="client@company.co.uk" required />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Password *</label>
+            <div className="relative">
+              <input style={{ ...inp, paddingRight: '72px' }} type={showPass ? 'text' : 'password'} value={form.password} onChange={set('password')} required />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                <button type="button" onClick={() => setForm(f => ({ ...f, password: generatePassword() }))}
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors" title="Generate password">
+                  <RefreshCw size={12} color="#6b7280" />
+                </button>
+                <button type="button" onClick={() => setShowPass(p => !p)}
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors">
+                  {showPass ? <EyeOff size={12} color="#6b7280" /> : <Eye size={12} color="#6b7280" />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Package</label>
+            <select style={inp} value={form.package} onChange={set('package')}>
+              <option value="">No package</option>
+              {PACKAGES.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Account Manager</label>
+            <input style={inp} value={form.account_manager} onChange={set('account_manager')} placeholder="Chris Eyres" />
+          </div>
+        </div>
+
+        {error && <p className="text-xs text-red-400 px-1">{error}</p>}
+
+        <div className="flex gap-3 pt-1">
+          <button type="submit" disabled={saving || !form.email || !form.business_name || !form.password}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 transition-all"
+            style={{ background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }}>
+            <UserPlus size={14} />
+            {saving ? 'Creating…' : 'Create Client'}
+          </button>
+          <button type="button" onClick={onCancel} className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-300 transition-colors">Cancel</button>
+        </div>
+      </form>
+    </motion.div>
+  )
+}
 
 const STAGES = [
   { key: 'onboarding', label: 'Onboarding',  color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
@@ -87,22 +219,22 @@ export default function AdminClientsPage() {
   const [loading, setLoading]         = useState(true)
   const [expanded, setExpanded]       = useState(null)
   const [saving, setSaving]           = useState(null)
-  const [milestones, setMilestones]   = useState({})   // keyed by client id
-  const [showAddForm, setShowAddForm] = useState(null)  // client id
-  const [editingId, setEditingId]     = useState(null)  // milestone id
+  const [milestones, setMilestones]   = useState({})
+  const [showAddForm, setShowAddForm] = useState(null)
+  const [editingId, setEditingId]     = useState(null)
   const [mSaving, setMSaving]         = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false)
 
-  useEffect(() => {
-    async function fetchClients() {
-      const { data } = await supabase
-        .from('client_profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-      setClients(data ?? [])
-      setLoading(false)
-    }
-    fetchClients()
-  }, [])
+  async function fetchClients() {
+    const { data } = await supabase
+      .from('client_profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setClients(data ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchClients() }, [])
 
   async function fetchMilestones(clientId) {
     const { data } = await supabase
@@ -174,10 +306,29 @@ export default function AdminClientsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-2xl font-extrabold text-white mb-1">Clients</h1>
-        <p className="text-sm text-gray-500">Manage client project status and milestones.</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+        className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white mb-1">Clients</h1>
+          <p className="text-sm text-gray-500">Manage client project status and milestones.</p>
+        </div>
+        {!showCreateForm && (
+          <button onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }}>
+            <UserPlus size={14} /> Add Client
+          </button>
+        )}
       </motion.div>
+
+      <AnimatePresence>
+        {showCreateForm && (
+          <CreateClientForm
+            onSuccess={() => { fetchClients(); }}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="space-y-3">
         {clients.length === 0 ? (

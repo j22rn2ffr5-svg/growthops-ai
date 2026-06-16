@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, BookOpen, FileText, Mail, Layout, Image } from 'lucide-react'
+import { ExternalLink, BookOpen, FileText, Mail, Layout, Image, CheckCircle2, RotateCcw, MessageSquare, X } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 
@@ -24,15 +24,34 @@ const TYPE_FILTERS = ['all', ...Object.keys(TYPES)]
 
 export default function ContentLibrary() {
   const { user } = useAuth()
-  const [items, setItems]     = useState([])
-  const [filter, setFilter]   = useState('all')
-  const [loading, setLoading] = useState(true)
+  const [items, setItems]         = useState([])
+  const [filter, setFilter]       = useState('all')
+  const [loading, setLoading]     = useState(true)
+  const [feedbackId, setFeedbackId] = useState(null)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [actioning, setActioning] = useState(null)
 
   useEffect(() => {
     supabase.from('content_library').select('*').eq('user_id', user.id)
       .order('published_date', { ascending: false, nullsFirst: false })
       .then(({ data }) => { setItems(data ?? []); setLoading(false) })
   }, [user.id])
+
+  async function approve(id) {
+    setActioning(id)
+    await supabase.from('content_library').update({ status: 'published' }).eq('id', id)
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'published' } : i))
+    setActioning(null)
+  }
+
+  async function requestChanges(id) {
+    setActioning(id)
+    await supabase.from('content_library').update({ status: 'draft', description: feedbackText ? `[Feedback] ${feedbackText}` : undefined }).eq('id', id)
+    setItems(prev => prev.map(i => i.id === id ? { ...i, status: 'draft', ...(feedbackText ? { description: `[Feedback] ${feedbackText}` } : {}) } : i))
+    setFeedbackId(null)
+    setFeedbackText('')
+    setActioning(null)
+  }
 
   const filtered = filter === 'all' ? items : items.filter(i => i.type === filter)
 
@@ -131,6 +150,49 @@ export default function ContentLibrary() {
                     </div>
                     {date && (
                       <p className="text-xs text-gray-600 mt-2">Published {date}</p>
+                    )}
+
+                    {/* Approval actions for in_review items */}
+                    {item.status === 'in_review' && (
+                      <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        {feedbackId === item.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              value={feedbackText}
+                              onChange={e => setFeedbackText(e.target.value)}
+                              placeholder="Describe what needs changing (optional)…"
+                              rows={2}
+                              className="w-full text-xs rounded-xl px-3 py-2 resize-none outline-none text-gray-300 placeholder-gray-600"
+                              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                            />
+                            <div className="flex gap-2">
+                              <button onClick={() => requestChanges(item.id)} disabled={actioning === item.id}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50 transition-all"
+                                style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                                <RotateCcw size={11} /> {actioning === item.id ? 'Sending…' : 'Send feedback'}
+                              </button>
+                              <button onClick={() => { setFeedbackId(null); setFeedbackText('') }}
+                                className="px-3 py-1.5 rounded-lg text-xs text-gray-600 hover:text-gray-400 transition-colors">
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 flex-wrap">
+                            <p className="text-xs text-gray-500 w-full mb-1">Review this content and let us know:</p>
+                            <button onClick={() => approve(item.id)} disabled={actioning === item.id}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50 transition-all"
+                              style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}>
+                              <CheckCircle2 size={11} /> {actioning === item.id ? 'Approving…' : 'Approve'}
+                            </button>
+                            <button onClick={() => setFeedbackId(item.id)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                              style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.09)' }}>
+                              <MessageSquare size={11} /> Request changes
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
