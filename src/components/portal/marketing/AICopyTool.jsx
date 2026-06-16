@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Copy, Bookmark, Trash2, Check, Loader2 } from 'lucide-react'
+import { Sparkles, Copy, Bookmark, Trash2, Check, Loader2, FileText, X } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 
@@ -40,23 +40,25 @@ function Pill({ active, onClick, children }) {
 
 export default function AICopyTool() {
   const { user, profile } = useAuth()
-  const [tool, setTool]         = useState('social_post')
+  const [tool, setTool]           = useState('social_post')
   const [platforms, setPlatforms] = useState(['LinkedIn'])
-  const [tone, setTone]         = useState('professional')
-  const [context, setContext]   = useState('')
-  const [request, setRequest]   = useState('')
-  const [output, setOutput]     = useState('')
+  const [tone, setTone]           = useState('professional')
+  const [context, setContext]     = useState('')
+  const [request, setRequest]     = useState('')
+  const [output, setOutput]       = useState('')
   const [generating, setGenerating] = useState(false)
-  const [error, setError]       = useState(null)
-  const [copied, setCopied]     = useState(false)
-  const [saved, setSaved]       = useState(false)
+  const [error, setError]         = useState(null)
+  const [copied, setCopied]       = useState(false)
+  const [saved, setSaved]         = useState(false)
   const [savedCopies, setSavedCopies] = useState([])
+  const [briefs, setBriefs]       = useState([])
+  const [selectedBrief, setSelectedBrief] = useState(null)
 
   useEffect(() => {
     if (profile?.business_name) setContext(profile.business_name)
   }, [profile])
 
-  useEffect(() => { loadSaved() }, [user.id])
+  useEffect(() => { loadSaved(); loadBriefs() }, [user.id])
 
   async function loadSaved() {
     const { data } = await supabase
@@ -66,6 +68,21 @@ export default function AICopyTool() {
       .order('created_at', { ascending: false })
       .limit(20)
     setSavedCopies(data ?? [])
+  }
+
+  async function loadBriefs() {
+    const { data } = await supabase
+      .from('campaign_briefs')
+      .select('id, name, objective, target_audience, channels, budget, timeline')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+    setBriefs(data ?? [])
+  }
+
+  function handleBriefSelect(e) {
+    const id = e.target.value
+    if (!id) { setSelectedBrief(null); return }
+    setSelectedBrief(briefs.find(b => b.id === id) ?? null)
   }
 
   async function handleGenerate() {
@@ -84,6 +101,7 @@ export default function AICopyTool() {
           tone,
           businessContext: context,
           request: request.trim(),
+          campaignBrief: selectedBrief ?? null,
         }),
       })
       const data = await res.json()
@@ -170,6 +188,73 @@ export default function AICopyTool() {
             placeholder="e.g. Apex Talent Solutions — a recruitment consultancy"
             style={{ ...input, padding: '10px 14px', fontSize: '14px' }}
           />
+        </div>
+
+        {/* Campaign brief selector */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+            Campaign brief <span className="normal-case font-normal text-gray-600">(optional)</span>
+          </label>
+          <select
+            value={selectedBrief?.id ?? ''}
+            onChange={handleBriefSelect}
+            style={{ ...input, padding: '10px 14px', fontSize: '14px', cursor: 'pointer' }}
+          >
+            <option value="">No brief selected</option>
+            {briefs.map(b => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+
+          {/* Selected brief summary card */}
+          <AnimatePresence>
+            {selectedBrief && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="mt-2 rounded-xl p-4 space-y-2"
+                style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)' }}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText size={12} color="#60a5fa" />
+                    <span className="text-xs font-semibold" style={{ color: '#60a5fa' }}>{selectedBrief.name}</span>
+                  </div>
+                  <button onClick={() => setSelectedBrief(null)} className="text-gray-600 hover:text-gray-400 flex-shrink-0">
+                    <X size={13} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                  {selectedBrief.objective && (
+                    <div className="col-span-2">
+                      <span className="text-gray-600">Objective: </span>
+                      <span className="text-gray-400">{selectedBrief.objective}</span>
+                    </div>
+                  )}
+                  {selectedBrief.target_audience && (
+                    <div className="col-span-2">
+                      <span className="text-gray-600">Audience: </span>
+                      <span className="text-gray-400">{selectedBrief.target_audience}</span>
+                    </div>
+                  )}
+                  {selectedBrief.channels?.length > 0 && (
+                    <div>
+                      <span className="text-gray-600">Channels: </span>
+                      <span className="text-gray-400">{selectedBrief.channels.join(', ')}</span>
+                    </div>
+                  )}
+                  {selectedBrief.budget && (
+                    <div>
+                      <span className="text-gray-600">Budget: </span>
+                      <span className="text-gray-400">{selectedBrief.budget}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs" style={{ color: '#4b5563' }}>This brief will be included in the AI prompt as campaign context.</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Request */}

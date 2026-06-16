@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server.' })
   }
 
-  const { tool, platform, tone, businessContext, request, brief } = req.body ?? {}
+  const { tool, platform, tone, businessContext, request, brief, campaignBrief } = req.body ?? {}
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
@@ -37,7 +37,16 @@ export default async function handler(req, res) {
     }
     const desc = toolDescriptions[tool] ?? 'marketing copy'
     systemInstruction = `You are an expert marketing copywriter. Write ${desc}. Tone: ${tone || 'professional'}. Output only the copy — no preamble, no meta-commentary.`
-    userPrompt = `Business: ${businessContext || 'A growing business'}\n\nRequest: ${request}`
+    const briefLines = campaignBrief ? [
+      '\n\nCampaign brief context (use this to inform the copy):',
+      `Campaign: ${campaignBrief.name}`,
+      campaignBrief.objective       ? `Objective: ${campaignBrief.objective}` : null,
+      campaignBrief.target_audience ? `Target audience: ${campaignBrief.target_audience}` : null,
+      campaignBrief.channels?.length ? `Channels: ${campaignBrief.channels.join(', ')}` : null,
+      campaignBrief.budget          ? `Budget: ${campaignBrief.budget}` : null,
+      campaignBrief.timeline        ? `Timeline: ${campaignBrief.timeline}` : null,
+    ].filter(Boolean).join('\n') : ''
+    userPrompt = `Business: ${businessContext || 'A growing business'}${briefLines}\n\nRequest: ${request}`
   }
 
   try {
