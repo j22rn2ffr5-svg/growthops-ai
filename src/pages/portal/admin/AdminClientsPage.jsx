@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronDown, Check, Plus, Trash2, Pencil, X } from 'lucide-react'
+import { ChevronDown, Check, Plus, Trash2, Pencil, X, Database } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 
 const STAGES = [
@@ -211,6 +212,14 @@ export default function AdminClientsPage() {
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: stage.bg, color: stage.color }}>
                     {stage.label}
                   </span>
+                  <Link
+                    to={`/portal/admin/clients/${client.id}`}
+                    onClick={e => e.stopPropagation()}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)', textDecoration: 'none' }}
+                  >
+                    <Database size={11} /> Data
+                  </Link>
                   <ChevronDown size={14} color="#6b7280" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                 </div>
               </button>

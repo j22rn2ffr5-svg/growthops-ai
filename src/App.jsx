@@ -36,7 +36,8 @@ const AutomationsPage     = lazy(() => import('./pages/portal/AutomationsPage'))
 const AdminDashboardPage  = lazy(() => import('./pages/portal/admin/AdminDashboardPage'))
 const AdminTicketsPage    = lazy(() => import('./pages/portal/admin/AdminTicketsPage'))
 const AdminEnquiriesPage  = lazy(() => import('./pages/portal/admin/AdminEnquiriesPage'))
-const AdminClientsPage    = lazy(() => import('./pages/portal/admin/AdminClientsPage'))
+const AdminClientsPage       = lazy(() => import('./pages/portal/admin/AdminClientsPage'))
+const AdminClientDetailPage  = lazy(() => import('./pages/portal/admin/AdminClientDetailPage'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -99,6 +100,7 @@ function PortalApp() {
                   <Route path="admin/tickets" element={<AdminTicketsPage />} />
                   <Route path="admin/enquiries" element={<AdminEnquiriesPage />} />
                   <Route path="admin/clients" element={<AdminClientsPage />} />
+                  <Route path="admin/clients/:clientId" element={<AdminClientDetailPage />} />
                   <Route path="*" element={<Navigate to="/portal" replace />} />
                 </Routes>
               </PortalLayout>
