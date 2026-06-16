@@ -29,6 +29,9 @@ const TicketDetailPage     = lazy(() => import('./pages/portal/TicketDetailPage'
 const AnalyticsPage   = lazy(() => import('./pages/portal/AnalyticsPage'))
 const SettingsPage        = lazy(() => import('./pages/portal/SettingsPage'))
 const MarketingPage       = lazy(() => import('./pages/portal/MarketingPage'))
+const PerformancePage     = lazy(() => import('./pages/portal/PerformancePage'))
+const PipelinePage        = lazy(() => import('./pages/portal/PipelinePage'))
+const AutomationsPage     = lazy(() => import('./pages/portal/AutomationsPage'))
 const AdminDashboardPage  = lazy(() => import('./pages/portal/admin/AdminDashboardPage'))
 const AdminTicketsPage    = lazy(() => import('./pages/portal/admin/AdminTicketsPage'))
 const AdminEnquiriesPage  = lazy(() => import('./pages/portal/admin/AdminEnquiriesPage'))
@@ -85,7 +88,10 @@ function PortalApp() {
                   <Route path="tickets" element={<TicketsPage />} />
                   <Route path="tickets/new" element={<NewTicketPage />} />
                   <Route path="tickets/:id" element={<TicketDetailPage />} />
-                  <Route path="marketing" element={<MarketingPage />} />
+                  <Route path="performance"  element={<PerformancePage />} />
+                  <Route path="pipeline"     element={<PipelinePage />} />
+                  <Route path="automations"  element={<AutomationsPage />} />
+                  <Route path="marketing"    element={<MarketingPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                   <Route path="admin" element={<AdminDashboardPage />} />
                   <Route path="admin/tickets" element={<AdminTicketsPage />} />
