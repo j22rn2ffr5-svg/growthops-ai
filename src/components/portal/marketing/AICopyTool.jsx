@@ -41,7 +41,7 @@ function Pill({ active, onClick, children }) {
 export default function AICopyTool() {
   const { user, profile } = useAuth()
   const [tool, setTool]         = useState('social_post')
-  const [platform, setPlatform] = useState('LinkedIn')
+  const [platforms, setPlatforms] = useState(['LinkedIn'])
   const [tone, setTone]         = useState('professional')
   const [context, setContext]   = useState('')
   const [request, setRequest]   = useState('')
@@ -80,7 +80,7 @@ export default function AICopyTool() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tool,
-          platform: tool === 'social_post' ? platform : null,
+          platform: tool === 'social_post' ? platforms.join(', ') : null,
           tone,
           businessContext: context,
           request: request.trim(),
@@ -100,7 +100,7 @@ export default function AICopyTool() {
     if (!output || saved) return
     const { error: dbErr } = await supabase.from('marketing_copies').insert({
       user_id: user.id, tool,
-      platform: tool === 'social_post' ? platform : null,
+      platform: tool === 'social_post' ? platforms.join(', ') : null,
       tone, prompt: request, output,
     })
     if (!dbErr) { setSaved(true); loadSaved() }
@@ -137,7 +137,17 @@ export default function AICopyTool() {
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">Platform</label>
             <div className="flex flex-wrap gap-2">
-              {PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}
+              {PLATFORMS.map(p => (
+                <Pill
+                  key={p}
+                  active={platforms.includes(p)}
+                  onClick={() => setPlatforms(prev =>
+                    prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
+                  )}
+                >
+                  {p}
+                </Pill>
+              ))}
             </div>
           </div>
         )}
