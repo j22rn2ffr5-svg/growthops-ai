@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { statusConfig, priorityConfig } from './TicketsPage'
 import ProjectTracker from '../../components/portal/ProjectTracker'
 import MilestonesTracker from '../../components/portal/MilestonesTracker'
+import GettingStarted from '../../components/portal/GettingStarted'
 
 const card = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem' }
 
@@ -77,12 +78,15 @@ export default function DashboardPage() {
   const [recentUpdates, setRecentUpdates] = useState([])
   const [recentMaint, setRecentMaint] = useState([])
   const [milestones, setMilestones]   = useState([])
+  const [hasWebsiteInfo, setHasWebsiteInfo] = useState(false)
+  const [seoCount, setSeoCount]       = useState(0)
 
   useEffect(() => {
     async function fetchAll() {
       const [
         ticketsRes, leadsRes, scoresRes, contentRes,
         keywordsRes, updatesRes, maintRes, milestonesRes,
+        websiteInfoRes, seoCountRes,
       ] = await Promise.all([
         supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
         supabase.from('leads').select('*').eq('user_id', user.id),
@@ -92,6 +96,8 @@ export default function DashboardPage() {
         supabase.from('website_updates').select('*').eq('user_id', user.id).order('update_date', { ascending: false }).limit(3),
         supabase.from('maintenance_logs').select('*').eq('user_id', user.id).order('month', { ascending: false }).order('created_at', { ascending: false }).limit(3),
         supabase.from('client_milestones').select('*').eq('user_id', user.id).order('sort_order').order('created_at'),
+        supabase.from('website_info').select('id').eq('user_id', user.id).maybeSingle(),
+        supabase.from('seo_keywords').select('id', { count: 'exact' }).eq('user_id', user.id),
       ])
       setTickets(ticketsRes.data ?? [])
       setLeads(leadsRes.data ?? [])
@@ -101,6 +107,8 @@ export default function DashboardPage() {
       setRecentUpdates(updatesRes.data ?? [])
       setRecentMaint(maintRes.data ?? [])
       setMilestones(milestonesRes.data ?? [])
+      setHasWebsiteInfo(!!websiteInfoRes.data)
+      setSeoCount(seoCountRes.count ?? 0)
       setLoading(false)
     }
     fetchAll()
@@ -113,6 +121,9 @@ export default function DashboardPage() {
       </div>
     </div>
   )
+
+  const isOnboarding = profile?.project_status === 'onboarding'
+  const hasNoData    = leads.length === 0 && tickets.length === 0 && !websiteScore && contentCount === 0
 
   const openTickets     = tickets.filter(t => t.status === 'open').length
   const newLeadsMonth   = leads.filter(l => new Date(l.created_at) > new Date(Date.now() - 30 * 86400000)).length
@@ -144,6 +155,21 @@ export default function DashboardPage() {
         {milestones.length > 0 && <MilestonesTracker milestones={milestones} />}
       </motion.div>
 
+      {/* Getting started (onboarding with no data) */}
+      {isOnboarding && hasNoData ? (
+        <GettingStarted
+          businessName={profile?.business_name}
+          accountManager={profile?.account_manager}
+          checks={{
+            hasWebsite:   hasWebsiteInfo,
+            hasSeo:       seoCount > 0,
+            hasContent:   contentCount > 0,
+            hasLeads:     leads.length > 0,
+            hasAnalytics: !!profile?.analytics_embed_url,
+          }}
+        />
+      ) : (
+      <>
       {/* Headline stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard icon={Users}    label="New Leads"     value={newLeadsMonth}   sub="last 30 days"       color="#34d399" to="/portal/pipeline"    delay={0.05} />
@@ -293,6 +319,8 @@ export default function DashboardPage() {
           })}
         </div>
       </motion.div>
+      </>
+      )}
     </div>
   )
 }
