@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, ImagePlus, Image } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../contexts/AuthContext'
 
@@ -32,12 +32,15 @@ function platformColor(id) {
 export default function ContentCalendar() {
   const { user } = useAuth()
   const today = new Date()
-  const [year, setYear]     = useState(today.getFullYear())
-  const [month, setMonth]   = useState(today.getMonth())
-  const [entries, setEntries] = useState([])
+  const [year, setYear]         = useState(today.getFullYear())
+  const [month, setMonth]       = useState(today.getMonth())
+  const [entries, setEntries]   = useState([])
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm]     = useState(EMPTY)
-  const [saving, setSaving] = useState(false)
+  const [form, setForm]         = useState(EMPTY)
+  const [saving, setSaving]     = useState(false)
+  const [imageFile, setImageFile]       = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => { loadEntries() }, [user.id, year, month])
 
@@ -73,16 +76,58 @@ export default function ContentCalendar() {
 
   function openDay(day) {
     setForm({ ...EMPTY, scheduled_date: dateStr(day) })
+    clearImage()
     setShowForm(true)
+  }
+
+  function handleImageChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  function clearImage() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImageFile(null)
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function closeModal() {
+    setShowForm(false)
+    clearImage()
   }
 
   async function handleSave() {
     if (!form.title.trim() || !form.scheduled_date) return
     setSaving(true)
+
+    let imageUrl = null
+    if (imageFile) {
+      const ext  = imageFile.name.split('.').pop()
+      const path = `${user.id}/${Date.now()}.${ext}`
+      const { error: uploadErr } = await supabase.storage
+        .from('marketing-images')
+        .upload(path, imageFile)
+      if (!uploadErr) {
+        const { data: urlData } = supabase.storage
+          .from('marketing-images')
+          .getPublicUrl(path)
+        imageUrl = urlData.publicUrl
+      }
+    }
+
     const { platforms, ...rest } = form
-    await supabase.from('content_calendar').insert({ user_id: user.id, ...rest, platform: platforms.join(',') })
+    await supabase.from('content_calendar').insert({
+      user_id: user.id,
+      ...rest,
+      platform: platforms.join(','),
+      image_url: imageUrl,
+    })
+
     setSaving(false)
-    setShowForm(false)
+    closeModal()
     loadEntries()
   }
 
@@ -108,7 +153,7 @@ export default function ContentCalendar() {
             </button>
           </div>
           <button
-            onClick={() => { setForm(EMPTY); setShowForm(true) }}
+            onClick={() => { setForm(EMPTY); clearImage(); setShowForm(true) }}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
           >
@@ -150,6 +195,7 @@ export default function ContentCalendar() {
                           className="group flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs truncate"
                           style={{ background: `${platformColor(e.platform)}1a`, color: platformColor(e.platform) }}
                         >
+                          {e.image_url && <Image size={8} className="flex-shrink-0" />}
                           <span className="flex-1 truncate leading-tight">{e.title}</span>
                           <button onClick={ev => deleteEntry(e.id, ev)} className="opacity-0 group-hover:opacity-100 flex-shrink-0 ml-0.5">
                             <X size={9} />
@@ -173,21 +219,21 @@ export default function ContentCalendar() {
         {showForm && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto"
             style={{ background: 'rgba(0,0,0,0.65)' }}
-            onClick={() => setShowForm(false)}
+            onClick={closeModal}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.97, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.97 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl p-6 space-y-4"
+              className="w-full max-w-md rounded-2xl p-6 space-y-4 my-10"
               style={{ background: '#0d1b2e', border: '1px solid rgba(255,255,255,0.1)' }}
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-white">Add calendar entry</h3>
-                <button onClick={() => setShowForm(false)} className="text-gray-600 hover:text-gray-400"><X size={16} /></button>
+                <button onClick={closeModal} className="text-gray-600 hover:text-gray-400"><X size={16} /></button>
               </div>
 
               <div className="space-y-3">
@@ -274,6 +320,47 @@ export default function ContentCalendar() {
                     placeholder="Paste or draft your content here…"
                     className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none placeholder-gray-600 resize-none"
                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                  />
+                </div>
+
+                {/* Image upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                    Image <span className="normal-case font-normal text-gray-600">(optional)</span>
+                  </label>
+
+                  {imagePreview ? (
+                    <div className="relative rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <img src={imagePreview} alt="Preview" className="w-full object-cover max-h-40" />
+                      <button
+                        onClick={clearImage}
+                        className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
+                        style={{ background: 'rgba(0,0,0,0.6)' }}
+                      >
+                        <X size={12} color="white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex flex-col items-center gap-2 py-6 rounded-xl transition-colors"
+                      style={{ border: '1px dashed rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.02)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    >
+                      <ImagePlus size={20} color="#4b5563" />
+                      <span className="text-xs text-gray-600">Click to upload image</span>
+                      <span className="text-xs text-gray-700">JPG, PNG, WebP or GIF · Max 5MB</span>
+                    </button>
+                  )}
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleImageChange}
+                    className="hidden"
                   />
                 </div>
               </div>
