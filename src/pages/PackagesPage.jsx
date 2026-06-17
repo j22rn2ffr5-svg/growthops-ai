@@ -12,27 +12,27 @@ import SEO from '../components/SEO'
 const packages = [
   {
     name: 'Launch',
-    tagline: 'A single high-converting page to start generating leads.',
-    price: 'Typical investment from £600',
-    priceNote: 'One-off project',
+    tagline: 'A fast, professional online presence to start generating leads.',
+    price: 'Typical investment from £300',
+    priceNote: 'One-off project — scoped to your requirements',
     color: '#60a5fa',
     borderColor: 'rgba(96,165,250,0.2)',
     bgColor: 'rgba(59,130,246,0.05)',
     featured: false,
-    ideal: 'For founders and early-stage businesses that need a professional online presence fast — one focused landing page built to convert visitors into enquiries, without the complexity of a full site.',
+    ideal: 'For founders and early-stage businesses that need a professional online presence quickly. Starting price reflects a basic AI-assisted build — final investment is scoped during requirements gathering based on what you actually need.',
     includes: [
-      'Single conversion landing page',
+      'AI-assisted website build',
       'Mobile-first, fast-loading design',
-      'Lead capture form and CRM connection',
-      'Basic analytics and conversion tracking',
-      'On-page SEO foundations',
-      '30-day post-launch support',
+      'Basic contact and lead capture form',
+      '1 month of support during setup',
+      'Full handover on completion',
+      'Price scoped to your requirements',
     ],
   },
   {
     name: 'Foundations',
     tagline: 'A proper multi-page website with the systems to back it up.',
-    price: 'Typical investment from £1,500',
+    price: 'Typical investment from £1,200',
     priceNote: 'One-off project',
     color: '#c084fc',
     borderColor: 'rgba(192,132,252,0.2)',
@@ -260,7 +260,7 @@ export default function PackagesPage() {
     <>
       <SEO
         title="Packages & Pricing"
-        description="GrowthOps AI growth system packages. Launch from £600, Foundations from £1,500, Growth System from £2,500, Scale on custom quote — including AI Voice Agent."
+        description="GrowthOps AI growth system packages. Launch from £300, Foundations from £1,200, Growth System from £2,500, Scale on custom quote — including AI Voice Agent."
         path="/packages"
         faqItems={faqs}
       />
@@ -388,8 +388,8 @@ export default function PackagesPage() {
               }}
             >
               <p className="text-center text-sm text-gray-400 leading-relaxed mb-5">
-                Projects start from <strong className="text-gray-200">£600</strong> for a focused landing page,
-                rising to <strong className="text-gray-200">£1,500</strong> for a full multi-page system and <strong className="text-gray-200">£2,500+</strong> for a complete growth engine.
+                Projects start from <strong className="text-gray-200">£300</strong> for a fast AI-assisted build,
+                rising to <strong className="text-gray-200">£1,200</strong> for a full multi-page system and <strong className="text-gray-200">£2,500+</strong> for a complete growth engine.
                 Scale engagements are scoped after discovery — once we understand exactly what you need.
               </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
