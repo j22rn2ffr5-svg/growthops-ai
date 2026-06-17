@@ -140,7 +140,7 @@ const retentionTiers = [
   {
     name: 'Essential Retainer',
     description: 'Core ongoing support to keep your systems running and improving.',
-    price: 'From £350',
+    price: 'From £200',
     priceNote: 'per month',
     color: '#60a5fa',
     includes: [
@@ -155,7 +155,7 @@ const retentionTiers = [
   {
     name: 'Active Growth Retainer',
     description: 'Continuous optimisation and active marketing management.',
-    price: 'From £750',
+    price: 'From £600',
     priceNote: 'per month',
     color: '#a78bfa',
     featured: true,
