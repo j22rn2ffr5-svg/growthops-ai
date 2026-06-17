@@ -5,8 +5,8 @@ const AuthContext = createContext(null)
 
 async function fetchUserData(userId) {
   const [profileRes, adminRes] = await Promise.all([
-    supabase.from('client_profiles').select('*').eq('id', userId).single(),
-    supabase.from('admin_users').select('id').eq('id', userId).single(),
+    supabase.from('client_profiles').select('*').eq('id', userId).maybeSingle(),
+    supabase.from('admin_users').select('id').eq('id', userId).maybeSingle(),
   ])
   return {
     profile: profileRes.data ?? null,

@@ -5,9 +5,16 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
 import Chatbot from './components/Chatbot'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/portal/ProtectedRoute'
 import PortalLayout from './components/portal/PortalLayout'
+
+function AdminRoute({ children }) {
+  const { isAdmin, loading } = useAuth()
+  if (loading) return null
+  if (!isAdmin) return <Navigate to="/portal" replace />
+  return children
+}
 
 const HomePage        = lazy(() => import('./pages/HomePage'))
 const ServicesPage    = lazy(() => import('./pages/ServicesPage'))
@@ -98,11 +105,11 @@ function PortalApp() {
                   <Route path="website"      element={<WebsitePage />} />
                   <Route path="reports"      element={<ReportsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
-                  <Route path="admin" element={<AdminDashboardPage />} />
-                  <Route path="admin/tickets" element={<AdminTicketsPage />} />
-                  <Route path="admin/enquiries" element={<AdminEnquiriesPage />} />
-                  <Route path="admin/clients" element={<AdminClientsPage />} />
-                  <Route path="admin/clients/:clientId" element={<AdminClientDetailPage />} />
+                  <Route path="admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+                  <Route path="admin/tickets" element={<AdminRoute><AdminTicketsPage /></AdminRoute>} />
+                  <Route path="admin/enquiries" element={<AdminRoute><AdminEnquiriesPage /></AdminRoute>} />
+                  <Route path="admin/clients" element={<AdminRoute><AdminClientsPage /></AdminRoute>} />
+                  <Route path="admin/clients/:clientId" element={<AdminRoute><AdminClientDetailPage /></AdminRoute>} />
                   <Route path="*" element={<Navigate to="/portal" replace />} />
                 </Routes>
               </PortalLayout>
