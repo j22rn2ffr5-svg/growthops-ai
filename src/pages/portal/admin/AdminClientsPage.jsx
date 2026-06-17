@@ -229,7 +229,7 @@ export default function AdminClientsPage() {
     const { data } = await supabase
       .from('client_profiles')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('onboarded_at', { ascending: false, nullsFirst: false })
     setClients(data ?? [])
     setLoading(false)
   }
