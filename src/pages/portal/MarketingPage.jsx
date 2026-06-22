@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles, Calendar, FileText, BookOpen } from 'lucide-react'
 import AICopyTool      from '../../components/portal/marketing/AICopyTool'
@@ -10,7 +10,7 @@ const TABS = [
   { id: 'copy',     label: 'AI Copy',          icon: Sparkles,  desc: 'Generate social posts, ad copy, email subjects and more.' },
   { id: 'calendar', label: 'Content Calendar',  icon: Calendar,  desc: 'Plan and schedule your content across every channel.' },
   { id: 'briefs',   label: 'Campaign Briefs',   icon: FileText,  desc: 'Build structured briefs for upcoming campaigns.' },
-  { id: 'library',  label: 'Content Library',   icon: BookOpen,  desc: 'All content GrowthOps has produced for your business.' },
+  { id: 'library',  label: 'Content Library',   icon: BookOpen,  desc: 'All content Stragyx has produced for your business.' },
 ]
 
 export default function MarketingPage() {

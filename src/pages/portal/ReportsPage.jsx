@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+﻿import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Printer, ChevronDown, ChevronUp, Users, Ticket, Globe,
@@ -183,7 +183,7 @@ export default function ReportsPage() {
                   <Zap size={18} color="white" fill="white" />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-white">GrowthOps AI</p>
+                  <p className="text-base font-bold text-white">Stragyx</p>
                   <p className="text-xs text-gray-500">Monthly Performance Report</p>
                 </div>
               </div>
@@ -406,7 +406,7 @@ export default function ReportsPage() {
 
             {/* Footer */}
             <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-xs text-gray-700 text-center">GrowthOps AI · Client Portal Report · {monthLabel}</p>
+              <p className="text-xs text-gray-700 text-center">Stragyx · Client Portal Report · {monthLabel}</p>
             </div>
 
           </motion.div>

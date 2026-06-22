@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Ticket, Users, MessageSquare, ArrowRight } from 'lucide-react'
@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
     <div className="max-w-5xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-2xl font-extrabold text-white mb-1">Admin Overview</h1>
-        <p className="text-sm text-gray-500">All clients and tickets across GrowthOps AI.</p>
+        <p className="text-sm text-gray-500">All clients and tickets across Stragyx.</p>
       </motion.div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

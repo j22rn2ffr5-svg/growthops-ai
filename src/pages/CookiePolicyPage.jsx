@@ -1,4 +1,4 @@
-import PageHero from '../components/PageHero'
+﻿import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
 import LegalReviewNotice from '../components/LegalReviewNotice'
 
@@ -22,7 +22,7 @@ export default function CookiePolicyPage() {
     <>
       <SEO
         title="Cookie Policy"
-        description="Information about the cookies used on the GrowthOps AI website."
+        description="Information about the cookies used on the Stragyx website."
         path="/cookie-policy"
       />
       <PageHero
@@ -44,7 +44,7 @@ export default function CookiePolicyPage() {
             }}
           >
             <p className="text-sm text-gray-400 leading-relaxed">
-              This Cookie Policy explains what cookies are, how GrowthOps AI uses them, and your
+              This Cookie Policy explains what cookies are, how Stragyx uses them, and your
               choices about their use. We keep things simple — we only use cookies that are
               necessary or that you have explicitly consented to.
             </p>
@@ -128,7 +128,7 @@ export default function CookiePolicyPage() {
           <div>
             <h2 className="text-lg font-bold text-white mb-4">Contact</h2>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Questions about this policy: hello@growthops.ai
+              Questions about this policy: hello@stragyx.com
             </p>
           </div>
 

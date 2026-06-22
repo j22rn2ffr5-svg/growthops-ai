@@ -1,9 +1,9 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Cookie } from 'lucide-react'
 
-const STORAGE_KEY = 'growthops_cookie_consent'
+const STORAGE_KEY = 'Stragyx_cookie_consent'
 
 export default function CookieConsent() {
   // Lazy initializer reads localStorage once on mount — avoids setState-in-effect

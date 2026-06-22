@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { User, Lock, ShieldCheck, CheckCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -204,7 +204,7 @@ export default function SettingsPage() {
             <span className="text-sm font-semibold text-white">{profile?.account_manager ?? 'Chris Eyres'}</span>
           </div>
         </div>
-        <p className="text-xs text-gray-600 mt-4">To change your plan, get in touch at <a href="mailto:hello@growthops.ai" className="text-blue-400 hover:text-blue-300">hello@growthops.ai</a>.</p>
+        <p className="text-xs text-gray-600 mt-4">To change your plan, get in touch at <a href="mailto:hello@stragyx.com" className="text-blue-400 hover:text-blue-300">hello@stragyx.com</a>.</p>
       </Section>
     </div>
   )

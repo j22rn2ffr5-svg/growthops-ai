@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
@@ -45,9 +45,9 @@ export default function Founder() {
                 CE
               </div>
               <p className="text-white font-bold text-xl leading-tight text-center">Chris Eyres</p>
-              <p className="text-gray-400 text-sm mt-1 text-center">Founder, GrowthOps AI</p>
+              <p className="text-gray-400 text-sm mt-1 text-center">Founder, Stragyx</p>
               <a
-                href="https://www.linkedin.com/company/growthops-ai"
+                href="https://www.linkedin.com/company/stragyx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-150"
@@ -77,13 +77,13 @@ export default function Founder() {
               </h2>
               <div className="space-y-4 text-sm text-gray-400 leading-relaxed">
                 <p>
-                  GrowthOps AI was founded by Chris Eyres after spending years helping SMBs fix the
+                  Stragyx was founded by Chris Eyres after spending years helping SMBs fix the
                   same recurring problems — scattered lead data, slow follow-up, marketing with no
                   visibility, and admin eating the day.
                 </p>
                 <p>
                   Most businesses don't need more software. They need the right systems, connected
-                  properly, built around how they actually work. That's what GrowthOps AI does.
+                  properly, built around how they actually work. That's what Stragyx does.
                 </p>
                 <p>
                   The focus is simple: AI tools, CRM pipelines, and automation workflows that make

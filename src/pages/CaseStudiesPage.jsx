@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Info, ArrowRight, CheckCircle2, TrendingUp } from 'lucide-react'
@@ -150,7 +150,7 @@ export default function CaseStudiesPage() {
     <>
       <SEO
         title="Example Growth Systems"
-        description="See the types of AI, CRM, and automation systems GrowthOps AI builds for SMBs — with the challenges, approach, and typical outcomes."
+        description="See the types of AI, CRM, and automation systems Stragyx builds for SMBs — with the challenges, approach, and typical outcomes."
         path="/case-studies"
       />
 

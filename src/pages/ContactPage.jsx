@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Send, CheckCircle2, Clock, MessageSquare, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -55,7 +55,7 @@ export default function ContactPage() {
     <>
       <SEO
         title="Contact"
-        description="Get in touch with GrowthOps AI. Send us a message and we'll respond within one business day."
+        description="Get in touch with Stragyx. Send us a message and we'll respond within one business day."
         path="/contact"
       />
 

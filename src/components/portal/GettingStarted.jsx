@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
   CheckCircle2, Circle, Zap, Globe, Users, BookOpen,
@@ -46,7 +46,7 @@ export default function GettingStarted({ businessName, accountManager, checks })
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}>
               <Zap size={17} color="white" fill="white" />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#93c5fd' }}>Welcome to GrowthOps</span>
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#93c5fd' }}>Welcome to Stragyx</span>
           </div>
           <h1 className="text-2xl font-extrabold text-white mb-2">
             {businessName ? `Great to have you, ${businessName}` : 'Your portal is being set up'}

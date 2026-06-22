@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, Clock, Users, Zap } from 'lucide-react'
@@ -167,7 +167,7 @@ export default function ProcessPage() {
     <>
       <SEO
         title="Our Process"
-        description="How GrowthOps AI works — from audit and strategy through to build, launch, and ongoing optimisation."
+        description="How Stragyx works — from audit and strategy through to build, launch, and ongoing optimisation."
         path="/process"
       />
       <PageHero

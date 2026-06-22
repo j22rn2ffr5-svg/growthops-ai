@@ -1,20 +1,20 @@
-import PageHero from '../components/PageHero'
+﻿import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
 import LegalReviewNotice from '../components/LegalReviewNotice'
 
 const sections = [
   {
     title: '1. About Us',
-    content: `GrowthOps AI ("GrowthOps AI", "we", "us", "our") is an AI integration and digital operations consultancy helping small and medium-sized businesses adopt, implement, and improve the use of AI tools, automation, websites, CRM systems, and related digital processes.
+    content: `Stragyx ("Stragyx", "we", "us", "our") is an AI integration and digital operations consultancy helping small and medium-sized businesses adopt, implement, and improve the use of AI tools, automation, websites, CRM systems, and related digital processes.
 
-Our website is: growthops.ai
-Contact us at: hello@growthops.ai`,
+Our website is: stragyx.com
+Contact us at: hello@stragyx.com`,
   },
   {
     title: '2. Definitions',
     content: `"Agreement" means these Terms and Conditions together with any proposal, statement of work, invoice, email confirmation, or other written agreement between us.
 
-"Client", "you", or "your" means the business, organisation, sole trader, partnership, or individual purchasing services from GrowthOps AI.
+"Client", "you", or "your" means the business, organisation, sole trader, partnership, or individual purchasing services from Stragyx.
 
 "Client Materials" means any content, data, documents, branding, images, text, login details, system access, software access, business information, or other materials you provide to us.
 
@@ -22,7 +22,7 @@ Contact us at: hello@growthops.ai`,
 
 "Portal" means any client portal, dashboard, workspace, or shared system we provide or use to communicate with you, manage work, share documents, or provide access to Deliverables.
 
-"Services" means any consulting, website development, AI implementation, chatbot setup, CRM integration, automation, technical support, digital strategy, training, or related work carried out by GrowthOps AI.
+"Services" means any consulting, website development, AI implementation, chatbot setup, CRM integration, automation, technical support, digital strategy, training, or related work carried out by Stragyx.
 
 "Third-Party Services" means software, platforms, applications, APIs, hosting providers, AI model providers, payment processors, CRM systems, email tools, analytics tools, or other third-party products used in connection with the Services.`,
   },
@@ -280,7 +280,7 @@ Contact us at: hello@growthops.ai`,
   },
   {
     title: '22. Non-Solicitation',
-    content: `22.1 During the engagement and for 6 months after it ends, you agree not to knowingly solicit or hire any employee, contractor, or subcontractor of GrowthOps AI who was involved in delivering the Services, without our prior written consent.
+    content: `22.1 During the engagement and for 6 months after it ends, you agree not to knowingly solicit or hire any employee, contractor, or subcontractor of Stragyx who was involved in delivering the Services, without our prior written consent.
 
 22.2 This does not prevent general recruitment advertising that is not specifically targeted at our personnel.`,
   },
@@ -288,7 +288,7 @@ Contact us at: hello@growthops.ai`,
     title: '23. Notices',
     content: `23.1 Notices under these Terms must be sent by email unless otherwise agreed.
 
-23.2 Notices to GrowthOps AI should be sent to: hello@growthops.ai
+23.2 Notices to Stragyx should be sent to: hello@stragyx.com
 
 23.3 Notices to you will be sent to the email address you provide to us.
 
@@ -332,15 +332,15 @@ Contact us at: hello@growthops.ai`,
 
 27.5 Nothing in these Terms creates a partnership, joint venture, employment relationship, or agency relationship between the parties.
 
-27.6 No person other than you and GrowthOps AI has any right to enforce these Terms.`,
+27.6 No person other than you and Stragyx has any right to enforce these Terms.`,
   },
   {
     title: '28. Contact',
     content: `For questions about these Terms, please contact:
 
-GrowthOps AI
-Email: hello@growthops.ai
-Website: growthops.ai`,
+Stragyx
+Email: hello@stragyx.com
+Website: stragyx.com`,
   },
 ]
 
@@ -349,7 +349,7 @@ export default function TermsPage() {
     <>
       <SEO
         title="Terms and Conditions"
-        description="Terms and Conditions governing the use of GrowthOps AI services and client portal."
+        description="Terms and Conditions governing the use of Stragyx services and client portal."
         path="/terms-of-service"
       />
       <PageHero
@@ -371,7 +371,7 @@ export default function TermsPage() {
           >
             <p className="text-sm text-gray-400 leading-relaxed">
               These Terms and Conditions apply to business clients who purchase services from
-              GrowthOps AI. Please read them carefully before using our services, website, client
+              Stragyx. Please read them carefully before using our services, website, client
               portal, or any deliverables we provide. These Terms should be read together with any
               proposal, statement of work, order form, invoice, or written agreement between us.
             </p>

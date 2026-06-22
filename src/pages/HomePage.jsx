@@ -1,4 +1,4 @@
-import Hero from '../components/Hero'
+﻿import Hero from '../components/Hero'
 import Problem from '../components/Problem'
 import Solution from '../components/Solution'
 import Services from '../components/Services'
@@ -16,7 +16,7 @@ export default function HomePage() {
     <>
       <SEO
         title="AI Growth Systems for SMBs"
-        description="GrowthOps AI builds CRM pipelines, automation sequences, and AI tools that keep your business responding fast and converting more — without adding headcount."
+        description="Stragyx builds CRM pipelines, automation sequences, and AI tools that keep your business responding fast and converting more — without adding headcount."
         path="/"
       />
       <Hero />

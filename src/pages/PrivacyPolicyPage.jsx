@@ -1,13 +1,13 @@
-import PageHero from '../components/PageHero'
+﻿import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
 import LegalReviewNotice from '../components/LegalReviewNotice'
 
 const sections = [
   {
     title: '1. Who we are',
-    content: `GrowthOps AI is operated by Chris Eyres ("we", "us", "our"). We provide AI-powered growth systems, CRM setup, automation, and digital marketing services for small and medium-sized businesses.
+    content: `Stragyx is operated by Chris Eyres ("we", "us", "our"). We provide AI-powered growth systems, CRM setup, automation, and digital marketing services for small and medium-sized businesses.
 
-For questions about this policy, contact us at: hello@growthops.ai`,
+For questions about this policy, contact us at: hello@stragyx.com`,
   },
   {
     title: '2. What information we collect',
@@ -61,7 +61,7 @@ You may request deletion of your data at any time (see Section 7).`,
 • Request a copy of your data in a portable format
 • Withdraw consent at any time (where consent is the basis for processing)
 
-To exercise any of these rights, contact us at hello@growthops.ai. We will respond within one calendar month.
+To exercise any of these rights, contact us at hello@stragyx.com. We will respond within one calendar month.
 
 You also have the right to lodge a complaint with the Information Commissioner's Office (ICO) at ico.org.uk.`,
   },
@@ -83,8 +83,8 @@ Each third-party provider has its own privacy policy. We will not use your data 
     title: '10. Contact',
     content: `For any data protection queries, contact:
 
-GrowthOps AI
-Email: hello@growthops.ai`,
+Stragyx
+Email: hello@stragyx.com`,
   },
 ]
 
@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
     <>
       <SEO
         title="Privacy Policy"
-        description="How GrowthOps AI collects, uses, and protects your personal data."
+        description="How Stragyx collects, uses, and protects your personal data."
         path="/privacy-policy"
       />
       <PageHero
@@ -114,7 +114,7 @@ export default function PrivacyPolicyPage() {
             }}
           >
             <p className="text-sm text-gray-400 leading-relaxed">
-              This Privacy Policy explains how GrowthOps AI collects, uses, and protects your
+              This Privacy Policy explains how Stragyx collects, uses, and protects your
               personal data. We are committed to handling your data with care and in accordance with
               UK GDPR and the Data Protection Act 2018.
             </p>

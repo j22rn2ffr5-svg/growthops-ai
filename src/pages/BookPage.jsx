@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, CheckCircle2, Clock, Shield, MessageSquare } from 'lucide-react'
 import PageHero from '../components/PageHero'
@@ -37,7 +37,7 @@ export default function BookPage() {
     <>
       <SEO
         title="Book a Free Strategy Call"
-        description="Book a free 30-minute strategy call with GrowthOps AI. We'll review your current setup and be straight about what's possible — no pitch, no pressure."
+        description="Book a free 30-minute strategy call with Stragyx. We'll review your current setup and be straight about what's possible — no pitch, no pressure."
         path="/book"
       />
 
@@ -160,7 +160,7 @@ export default function BookPage() {
                 </p>
 
                 <a
-                  href="https://calendly.com/growthops-ai/strategy-call"
+                  href="https://calendly.com/Stragyx-ai/strategy-call"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary text-base px-8 py-4 inline-flex"

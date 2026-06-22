@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import Logo from './Logo'
 
 const LinkedInIcon = () => (
@@ -50,10 +50,10 @@ export default function Footer() {
             </p>
             {/* LinkedIn only */}
             <a
-              href="https://www.linkedin.com/company/growthops-ai"
+              href="https://www.linkedin.com/company/stragyx"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GrowthOps AI on LinkedIn"
+              aria-label="Stragyx on LinkedIn"
               className="w-9 h-9 rounded-lg inline-flex items-center justify-center transition-all duration-150"
               style={{
                 background: 'rgba(255,255,255,0.05)',

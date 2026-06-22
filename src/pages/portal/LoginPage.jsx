@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
@@ -52,7 +52,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <SEO title="Client Portal" description="GrowthOps AI client portal login." path="/portal/login" />
+      <SEO title="Client Portal" description="Stragyx client portal login." path="/portal/login" />
 
       <div
         className="min-h-screen flex items-center justify-center px-4"
@@ -83,7 +83,7 @@ export default function LoginPage() {
                   <Zap size={18} color="white" fill="white" />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-white leading-none">GrowthOps AI</p>
+                  <p className="text-base font-bold text-white leading-none">Stragyx</p>
                   <p className="text-xs" style={{ color: '#60a5fa' }}>Client Portal</p>
                 </div>
               </div>

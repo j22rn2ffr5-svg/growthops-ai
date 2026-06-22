@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, BarChart3, Ticket, LogOut, Menu, X, Zap, ShieldCheck, Mail, Users, Settings, Megaphone, TrendingUp, GitMerge, Workflow, Globe, FileText } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -84,7 +84,7 @@ export default function PortalLayout({ children }) {
             <Zap size={15} color="white" fill="white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white leading-none">GrowthOps</p>
+            <p className="text-sm font-bold text-white leading-none">Stragyx</p>
             <p className="text-xs" style={{ color: '#60a5fa' }}>Client Portal</p>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function PortalLayout({ children }) {
           >
             <Menu size={20} />
           </button>
-          <span className="text-sm font-semibold text-white">GrowthOps Portal</span>
+          <span className="text-sm font-semibold text-white">Stragyx Portal</span>
         </div>
 
         {/* Page content */}
@@ -183,10 +183,10 @@ export default function PortalLayout({ children }) {
 
         {/* Footer */}
         <footer className="px-6 md:px-8 py-4 flex flex-wrap items-center gap-x-4 gap-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <span className="text-xs text-gray-700">© {new Date().getFullYear()} GrowthOps AI</span>
+          <span className="text-xs text-gray-700">© {new Date().getFullYear()} Stragyx</span>
           <a href="/privacy-policy"   className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
           <a href="/terms-of-service" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms &amp; Conditions</a>
-          <a href="mailto:hello@growthops.ai" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">hello@growthops.ai</a>
+          <a href="mailto:hello@stragyx.com" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">hello@stragyx.com</a>
         </footer>
       </div>
     </div>

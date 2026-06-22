@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+﻿import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 const supabase = createClient(
@@ -72,13 +72,13 @@ export default async function handler(req, res) {
   // Send email to client
   try {
     await resend.emails.send({
-      from:    'GrowthOps AI <onboarding@resend.dev>',
+      from:    'Stragyx <onboarding@resend.dev>',
       to:      clientEmail,
       subject: `Re: ${ticket.title}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
           <div style="background: #0f172a; padding: 32px; border-radius: 12px 12px 0 0;">
-            <p style="color: #60a5fa; font-weight: 700; font-size: 14px; margin: 0 0 8px;">GrowthOps AI</p>
+            <p style="color: #60a5fa; font-weight: 700; font-size: 14px; margin: 0 0 8px;">Stragyx</p>
             <h1 style="color: #ffffff; font-size: 20px; margin: 0;">You have a new reply</h1>
           </div>
           <div style="background: #f8fafc; padding: 32px; border-radius: 0 0 12px 12px;">
@@ -89,9 +89,9 @@ export default async function handler(req, res) {
               <p style="color: #1e293b; font-size: 14px; line-height: 1.6; margin: 0;">${message.trim().replace(/\n/g, '<br>')}</p>
             </div>
 
-            <a href="https://growthops.ai/portal/tickets" style="display: inline-block; background: #3b82f6; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">View in Portal</a>
+            <a href="https://Stragyx.ai/portal/tickets" style="display: inline-block; background: #3b82f6; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">View in Portal</a>
 
-            <p style="color: #94a3b8; font-size: 12px; margin: 24px 0 0;">You're receiving this because you have a support ticket open with GrowthOps AI. Log in to your portal to reply or view your full ticket history.</p>
+            <p style="color: #94a3b8; font-size: 12px; margin: 24px 0 0;">You're receiving this because you have a support ticket open with Stragyx. Log in to your portal to reply or view your full ticket history.</p>
           </div>
         </div>
       `,

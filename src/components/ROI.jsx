@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { X, CheckCircle2, DollarSign } from 'lucide-react'
 
@@ -62,7 +62,7 @@ export default function ROI() {
             </h2>
             <p className="mt-5 text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
               Hiring individual specialists across web, marketing, automation, CRM, analytics, and
-              content can cost hundreds of thousands per year. GrowthOps AI gives you access to a
+              content can cost hundreds of thousands per year. Stragyx gives you access to a
               complete growth infrastructure at a fraction of that cost.
             </p>
           </div>
@@ -132,7 +132,7 @@ export default function ROI() {
                   <CheckCircle2 size={18} color="#60a5fa" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">GrowthOps AI System</div>
+                  <div className="text-sm font-bold text-white">Stragyx System</div>
                   <div className="text-xs text-gray-500">Complete growth infrastructure</div>
                 </div>
               </div>

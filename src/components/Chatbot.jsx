@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+﻿import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageSquare, X, Send, Bot, RotateCcw } from 'lucide-react'
 
 // ─── localStorage persistence ─────────────────────────────────────────────────
-const STORAGE_KEY = 'growthops_chat'
+const STORAGE_KEY = 'Stragyx_chat'
 const SESSION_TTL  = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 function loadSession() {
@@ -37,7 +37,7 @@ function clearSession() {
 // ─── Welcome message ──────────────────────────────────────────────────────────
 const WELCOME = {
   role: 'assistant',
-  content: "Hi there 👋 I'm the GrowthOps AI assistant. I can answer questions about our services, packages, and pricing — or help you work out which solution might fit your business. What are you looking to improve?",
+  content: "Hi there 👋 I'm the Stragyx assistant. I can answer questions about our services, packages, and pricing — or help you work out which solution might fit your business. What are you looking to improve?",
 }
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
@@ -210,7 +210,7 @@ export default function Chatbot() {
                   <Bot size={17} color="white" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white leading-none">GrowthOps AI</p>
+                  <p className="text-sm font-bold text-white leading-none">Stragyx</p>
                   <p className="text-xs mt-0.5" style={{ color: '#34d399' }}>● Online now</p>
                 </div>
               </div>

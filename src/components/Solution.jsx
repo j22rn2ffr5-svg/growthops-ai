@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { CheckCircle2, Layers } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -56,7 +56,7 @@ export default function Solution() {
                 <span className="gradient-text">automation, and performance.</span>
               </h2>
               <p className="mt-6 text-lg text-gray-400 leading-relaxed">
-                We don't sell individual services in isolation. GrowthOps AI combines website
+                We don't sell individual services in isolation. Stragyx combines website
                 development, CRM, automation, AI, SEO, paid ads, content, analytics, and
                 conversion optimisation into one joined-up operating system — built specifically
                 around how your business works.

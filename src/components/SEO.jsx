@@ -1,7 +1,7 @@
-import { Helmet } from 'react-helmet-async'
+﻿import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'Stragyx'
-const DOMAIN = 'https://growthops.ai'
+const DOMAIN = 'https://stragyx.com'
 const DEFAULT_DESC =
   'Practical AI, CRM, and automation systems for SMBs that need more leads, faster follow-up, and cleaner operations.'
 
@@ -13,7 +13,7 @@ const orgSchema = {
   logo: `${DOMAIN}/favicon.svg`,
   description: DEFAULT_DESC,
   areaServed: 'GB',
-  sameAs: ['https://www.linkedin.com/company/growthops-ai'],
+  sameAs: ['https://www.linkedin.com/company/stragyx'],
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer service',

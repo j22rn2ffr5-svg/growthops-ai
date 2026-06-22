@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion'
+﻿import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -261,7 +261,7 @@ export default function PackagesPage() {
     <>
       <SEO
         title="Packages & Pricing"
-        description="GrowthOps AI growth system packages. Four tailored systems — Launch, Foundations, Growth System, and Scale — each scoped to your business. Book a free strategy call."
+        description="Stragyx growth system packages. Four tailored systems — Launch, Foundations, Growth System, and Scale — each scoped to your business. Book a free strategy call."
         path="/packages"
         faqItems={faqs}
       />
