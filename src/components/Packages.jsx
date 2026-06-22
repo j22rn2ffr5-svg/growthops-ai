@@ -30,6 +30,7 @@ const packages = [
     includes: [
       'Custom multi-page website (up to 6 pages)',
       'CRM setup and lead pipeline',
+      'Basic on-page SEO setup',
       'Automated email follow-up sequence',
       'Analytics and conversion tracking',
       'Monthly performance report',
