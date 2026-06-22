@@ -68,8 +68,7 @@ export default function Logo({ size = 'md', showText = true }) {
           className={`font-extrabold tracking-tight leading-none ${textClass}`}
           style={{ letterSpacing: '-0.02em' }}
         >
-          <span style={{ color: 'white' }}>Growth</span>
-          <span style={{ color: 'rgba(255,255,255,0.75)' }}>Ops</span>
+          <span style={{ color: 'white' }}>Strag</span>
           <span
             style={{
               background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
@@ -78,7 +77,7 @@ export default function Logo({ size = 'md', showText = true }) {
               backgroundClip: 'text',
             }}
           >
-            {' '}AI
+            yx
           </span>
         </span>
       )}

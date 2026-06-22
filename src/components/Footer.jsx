@@ -104,7 +104,7 @@ export default function Footer() {
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <p className="text-xs text-gray-600">
-            © {new Date().getFullYear()} GrowthOps AI. All rights reserved.
+            © {new Date().getFullYear()} Stragyx. All rights reserved.
           </p>
           <div className="flex items-center gap-4 flex-wrap justify-center">
             {[
