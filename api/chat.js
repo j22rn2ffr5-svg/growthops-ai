@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 const rateLimitMap = new Map()
@@ -132,29 +132,19 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── Call Gemini ───────────────────────────────────────────────────────────
+  // ── Call Claude ───────────────────────────────────────────────────────────
   try {
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      systemInstruction: SYSTEM_PROMPT,
-      generationConfig: { maxOutputTokens: 300 },
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: SYSTEM_PROMPT,
+      messages: safeMessages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
     })
 
-    const historyRaw = safeMessages.slice(0, -1).map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }))
-    // Gemini requires history to start with a user message
-    const firstUser = historyRaw.findIndex(m => m.role === 'user')
-    const history = firstUser > 0 ? historyRaw.slice(firstUser) : historyRaw
-
-    const chat = model.startChat({ history })
-    const result = await chat.sendMessage(safeMessages[safeMessages.length - 1].content)
-    const text = result.response.text()
-
+    const text = response.content[0].text
     return res.status(200).json({ content: text })
   } catch (err) {
-    console.error('Gemini API error:', err?.message ?? err)
+    console.error('Claude API error:', err?.message ?? err)
     return res.status(500).json({ error: 'Something went wrong. Please try again shortly.' })
   }
 }
