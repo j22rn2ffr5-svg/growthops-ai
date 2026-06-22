@@ -160,7 +160,7 @@ const retentionTiers = [
     color: '#a78bfa',
     featured: true,
     deal: {
-      saving: 'Save up to £1,250 on setup',
+      saving: 'Setup cost reduced by 50%',
       note: '50% off your setup cost when you commit to 12 months upfront.',
     },
     includes: [
@@ -180,7 +180,7 @@ const retentionTiers = [
     priceNote: 'per month',
     color: '#34d399',
     deal: {
-      saving: 'Setup fully waived — save up to £2,500',
+      saving: 'Setup fully waived',
       note: 'Your entire setup fee is waived when you commit to a 12-month Full Partnership.',
     },
     includes: [
@@ -215,8 +215,8 @@ const faqs = [
     a: 'These packages are starting points — not rigid boxes. Most clients have specific needs that sit between packages or require adjustments. We always scope a custom solution based on your actual situation.',
   },
   {
-    q: 'Why are the prices listed as "from"?',
-    a: 'The right investment depends on your business size, current setup, industry, and goals. The "from" figures give you a realistic floor — we scope every engagement properly before providing a final quote, so you get an accurate number.',
+    q: 'How is investment calculated?',
+    a: 'Every engagement is scoped to your business — size, current setup, industry, and goals all factor in. We discuss investment on your strategy call once we understand exactly what you need, so you always get an accurate number rather than a generic quote.',
   },
   {
     q: 'Is there a minimum commitment period?',
@@ -260,7 +260,7 @@ export default function PackagesPage() {
     <>
       <SEO
         title="Packages & Pricing"
-        description="GrowthOps AI growth system packages. Launch from £300, Foundations from £1,200, Growth System from £2,500, Scale on custom quote — including AI Voice Agent."
+        description="GrowthOps AI growth system packages. Four tailored systems — Launch, Foundations, Growth System, and Scale — each scoped to your business. Book a free strategy call."
         path="/packages"
         faqItems={faqs}
       />
@@ -306,12 +306,8 @@ export default function PackagesPage() {
                     </span>
                     <h2 className="text-base font-bold text-white mb-2 leading-snug">{pkg.tagline}</h2>
 
-                    {/* Pricing anchor */}
                     <div className="mb-4">
-                      <span className="text-xl font-extrabold leading-tight block" style={{ color: pkg.color }}>
-                        {pkg.price}
-                      </span>
-                      <span className="text-xs text-gray-500">{pkg.priceNote}</span>
+                      <span className="text-xs text-gray-500 italic">Investment scoped to your requirements</span>
                     </div>
 
                     <div
@@ -387,11 +383,6 @@ export default function PackagesPage() {
                 border: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              <p className="text-center text-sm text-gray-400 leading-relaxed mb-5">
-                Projects start from <strong className="text-gray-200">£300</strong> for a fast AI-assisted build,
-                rising to <strong className="text-gray-200">£1,200</strong> for a full multi-page system and <strong className="text-gray-200">£2,500+</strong> for a complete growth engine.
-                Scale engagements are scoped after discovery — once we understand exactly what you need.
-              </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
                   'No pressure, no hard sell.',
@@ -481,7 +472,7 @@ export default function PackagesPage() {
                 <p className="text-sm font-bold text-white mb-1">12-Month Commitment Deal</p>
                 <p className="text-xs text-gray-400 leading-relaxed">
                   Lock in for 12 months on an Active Growth or Full Partnership retainer and we'll reduce or waive your setup costs entirely.
-                  <span className="text-yellow-400 font-semibold"> Active Growth: 50% off setup (save up to £1,250). Full Partnership: setup fully waived (save up to £2,500).</span>
+                  <span className="text-yellow-400 font-semibold"> Active Growth: 50% off your setup cost. Full Partnership: setup fully waived.</span>
                 </p>
               </div>
               <Link
@@ -525,10 +516,7 @@ export default function PackagesPage() {
                     </span>
                     <p className="text-sm text-gray-400 mb-4 leading-relaxed">{tier.description}</p>
                     <div className="mb-5">
-                      <span className="text-2xl font-extrabold" style={{ color: tier.color }}>
-                        {tier.price}
-                      </span>
-                      <span className="text-xs text-gray-500 ml-2">{tier.priceNote}</span>
+                      <span className="text-xs text-gray-500 italic">Investment discussed on your strategy call</span>
                     </div>
                     <div className="space-y-2.5 flex-1 mb-6">
                       {tier.includes.map((item) => (

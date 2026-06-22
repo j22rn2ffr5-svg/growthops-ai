@@ -5,54 +5,67 @@ import { Link } from 'react-router-dom'
 
 const packages = [
   {
-    name: 'Starter System',
-    tagline: 'For businesses that need a professional foundation.',
+    name: 'Launch',
+    tagline: 'A fast, professional online presence to start generating leads.',
     color: '#60a5fa',
     borderColor: 'rgba(96,165,250,0.2)',
     bgColor: 'rgba(59,130,246,0.05)',
     featured: false,
     includes: [
-      'Website improvements or new landing page',
-      'Basic CRM setup and configuration',
-      'Lead capture forms integration',
-      'Basic email follow-up automation',
+      'AI-assisted website build',
+      'Mobile-first, fast-loading design',
+      'Lead capture form',
       'Analytics and tracking setup',
+      '1 month of support during setup',
+      'Full handover on completion',
+    ],
+  },
+  {
+    name: 'Foundations',
+    tagline: 'A proper multi-page website with the systems to back it up.',
+    color: '#c084fc',
+    borderColor: 'rgba(192,132,252,0.2)',
+    bgColor: 'rgba(168,85,247,0.05)',
+    featured: false,
+    includes: [
+      'Custom multi-page website (up to 6 pages)',
+      'CRM setup and lead pipeline',
+      'Automated email follow-up sequence',
+      'Analytics and conversion tracking',
       'Monthly performance report',
     ],
   },
   {
     name: 'Growth System',
-    tagline: 'For businesses ready to generate and convert more leads.',
+    tagline: 'A complete system to generate, nurture, and convert more leads.',
     color: '#a78bfa',
     borderColor: 'rgba(167,139,250,0.35)',
     bgColor: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(139,92,246,0.08) 100%)',
     featured: true,
     includes: [
-      'Custom website design and development',
-      'Full CRM pipeline and deal tracking',
-      'AI chatbot setup and training',
-      'Email and SMS follow-up sequences',
-      'SEO strategy and content foundation',
-      'Reporting dashboard',
-      'Monthly strategy review',
+      'Custom multi-page website design and development',
+      'Full CRM pipeline setup and deal tracking',
+      'AI chatbot trained on your business',
+      'Email and SMS follow-up automation',
+      'SEO strategy and content foundations',
+      'Live reporting dashboard',
+      'Monthly strategy review call',
     ],
   },
   {
-    name: 'Scale System',
-    tagline: 'For businesses wanting a complete growth engine.',
+    name: 'Scale',
+    tagline: 'Your entire growth function, managed and scaled.',
     color: '#34d399',
     borderColor: 'rgba(52,211,153,0.2)',
     bgColor: 'rgba(52,211,153,0.04)',
     featured: false,
     includes: [
-      'Advanced website and funnel build',
-      'Paid advertising management (Google / Meta)',
-      'Advanced multi-step automations',
-      'CRM optimisation and segmentation',
-      'Conversion rate optimisation testing',
-      'Full analytics and reporting dashboard',
-      'Ongoing optimisation and support',
-      'Dedicated account management',
+      'Everything in Growth System',
+      'Paid advertising management (Google and Meta)',
+      'Advanced multi-step automation workflows',
+      'Conversion rate optimisation programme',
+      'Full analytics and attribution dashboard',
+      'Dedicated account manager',
     ],
   },
 ]
@@ -97,7 +110,7 @@ export default function Packages() {
           </div>
         </FadeUp>
 
-        <div className="grid md:grid-cols-3 gap-5 items-start">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
           {packages.map((pkg, i) => (
             <FadeUp key={pkg.name} delay={i * 0.1}>
               <div
