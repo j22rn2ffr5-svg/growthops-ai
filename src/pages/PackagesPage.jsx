@@ -470,10 +470,10 @@ export default function PackagesPage() {
                 <Tag size={18} color="#fbbf24" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-white mb-1">12-Month Commitment Deal</p>
+                <p className="text-sm font-bold text-white mb-1">Commit to growth, save on setup</p>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  Lock in for 12 months on an Active Growth or Full Partnership retainer and we'll reduce or waive your setup costs entirely.
-                  <span className="text-yellow-400 font-semibold"> Active Growth: 50% off your setup cost. Full Partnership: setup fully waived.</span>
+                  Choose a 12-month Active Growth or Full Partnership retainer and we'll reduce or eliminate your setup cost — so more of your budget goes into results from day one.
+                  <span className="text-yellow-400 font-semibold"> Active Growth: 50% off setup. Full Partnership: setup fully waived.</span>
                 </p>
               </div>
               <Link
