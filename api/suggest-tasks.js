@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -47,13 +47,13 @@ Respond with ONLY a valid JSON array — no markdown, no explanation:
 [{"title":"Task title","due_date":"YYYY-MM-DD"},...]`
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: { maxOutputTokens: 512, temperature: 0.4 },
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      messages: [{ role: 'user', content: prompt }],
     })
 
-    const result = await model.generateContent(prompt)
-    const raw = result.response.text().trim()
+    const raw = response.content[0].text.trim()
 
     // Strip any markdown code fences if present
     const json = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()

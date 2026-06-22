@@ -1,24 +1,22 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server.' })
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured on the server.' })
   }
 
   const { tool, platform, tone, businessContext, request, brief, campaignBrief, imageBase64, imageMimeType } = req.body ?? {}
 
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-
-  let systemInstruction, userPrompt
+  let systemPrompt, userPrompt
 
   if (tool === 'campaign_brief') {
-    systemInstruction = 'You are a strategic marketing consultant. Write a clear, actionable campaign brief summary in plain text (no markdown). Structure it with labelled sections: Overview, Key Messages, Success Metrics, and Recommended Approach.'
+    systemPrompt = 'You are a strategic marketing consultant. Write a clear, actionable campaign brief summary in plain text (no markdown). Structure it with labelled sections: Overview, Key Messages, Success Metrics, and Recommended Approach.'
     userPrompt = [
       `Campaign: ${brief?.name || 'Untitled'}`,
       `Objective: ${brief?.objective || 'Not specified'}`,
@@ -37,7 +35,7 @@ export default async function handler(req, res) {
     }
     const desc = toolDescriptions[tool] ?? 'marketing copy'
     const imageContext = imageBase64 ? ' An image has been provided — analyse it and ensure the copy directly relates to and enhances what is shown in the image.' : ''
-    systemInstruction = `You are an expert marketing copywriter. Write ${desc}. Tone: ${tone || 'professional'}.${imageContext} Output only the copy — no preamble, no meta-commentary.`
+    systemPrompt = `You are an expert marketing copywriter. Write ${desc}. Tone: ${tone || 'professional'}.${imageContext} Output only the copy — no preamble, no meta-commentary.`
     const briefLines = campaignBrief ? [
       '\n\nCampaign brief context (use this to inform the copy):',
       `Campaign: ${campaignBrief.name}`,
@@ -51,19 +49,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const parts = []
+    const userContent = []
     if (imageBase64 && imageMimeType) {
-      parts.push({ inlineData: { data: imageBase64, mimeType: imageMimeType } })
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: imageMimeType, data: imageBase64 } })
     }
-    parts.push({ text: userPrompt })
+    userContent.push({ type: 'text', text: userPrompt })
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts }],
-      systemInstruction: { parts: [{ text: systemInstruction }] },
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
     })
-    return res.status(200).json({ output: result.response.text() })
+    return res.status(200).json({ output: response.content[0].text })
   } catch (err) {
-    console.error('Gemini error:', err)
+    console.error('Claude error:', err?.message ?? err)
     return res.status(500).json({ error: 'Failed to generate content. Please try again.' })
   }
 }
