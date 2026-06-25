@@ -71,7 +71,10 @@ export default function AnalyticsPage() {
 
   const getPageEmbedUrl = (baseUrl, pageNum) => {
     if (isPlaceholder(baseUrl)) return null
-    return `${baseUrl}/page/${pageNum}`
+    // Convert reporting URL to embed URL and add page parameter
+    const reportId = baseUrl.split('/reporting/')[1]
+    if (!reportId) return baseUrl
+    return `https://datastudio.google.com/embed/reporting/${reportId}/page/${pageNum}`
   }
 
   return (
