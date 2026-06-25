@@ -6,6 +6,47 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const isPlaceholder = url => !url || url.includes('REPLACE_WITH')
 
+const reportPages = [
+  { id: 'overview', name: 'Overview', pageNum: '0' },
+  { id: 'audience', name: 'Audience & Events', pageNum: '1' },
+  { id: 'geography', name: 'Geography', pageNum: '2' },
+]
+
+function AnalyticsCard({ title, embedUrl, isLoading }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="rounded-2xl overflow-hidden"
+      style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+    >
+      <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+      </div>
+      {isLoading ? (
+        <div className="h-80 flex items-center justify-center">
+          <div className="flex gap-2">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#3b82f6', animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <iframe
+          src={embedUrl}
+          title={title}
+          width="100%"
+          height="320"
+          style={{ border: 'none' }}
+          allowFullScreen
+          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        />
+      )}
+    </motion.div>
+  )
+}
+
 export default function AnalyticsPage() {
   const { user } = useAuth()
   const [dashboards, setDashboards] = useState([])
@@ -28,8 +69,13 @@ export default function AnalyticsPage() {
 
   const activeDash = dashboards.find(d => d.id === active)
 
+  const getPageEmbedUrl = (baseUrl, pageNum) => {
+    if (isPlaceholder(baseUrl)) return null
+    return `${baseUrl}/page/${pageNum}`
+  }
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-2xl font-extrabold text-white mb-1">Analytics</h1>
         <p className="text-sm text-gray-500">Your live reporting dashboards.</p>
@@ -62,7 +108,7 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="space-y-4"
+          className="space-y-6"
         >
           {/* Tab selector */}
           {dashboards.length > 1 && (
@@ -105,49 +151,43 @@ export default function AnalyticsPage() {
                 onMouseEnter={e => e.currentTarget.style.color = '#e5e7eb'}
                 onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
               >
-                <ExternalLink size={12} /> Open in new tab
+                <ExternalLink size={12} /> Open full report
               </a>
             </div>
           )}
 
-          {/* Embedded report or placeholder */}
-          {activeDash && (
-            isPlaceholder(activeDash.embed_url) ? (
-              <motion.div
-                key={activeDash.id + '-placeholder'}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-2xl flex flex-col items-center justify-center text-center"
-                style={{ border: '1px dashed rgba(255,255,255,0.08)', height: '620px', background: 'rgba(255,255,255,0.01)' }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                  style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
-                >
-                  <Clock size={26} color="#3b82f6" />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">Dashboard being set up</h3>
-                <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
-                  Your <span className="text-gray-400">{activeDash.name}</span> dashboard is being configured. We'll notify you as soon as it's live.
-                </p>
-              </motion.div>
-            ) : (
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{ border: '1px solid rgba(255,255,255,0.07)', height: '620px' }}
-              >
-                <iframe
-                  src={activeDash.embed_url}
-                  title={activeDash.name}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 'none' }}
-                  allowFullScreen
-                  sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          {/* Analytics cards grid */}
+          {activeDash && !isPlaceholder(activeDash.embed_url) ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {reportPages.map(page => (
+                <AnalyticsCard
+                  key={page.id}
+                  title={page.name}
+                  embedUrl={getPageEmbedUrl(activeDash.embed_url, page.pageNum)}
+                  isLoading={false}
                 />
+              ))}
+            </div>
+          ) : (
+            <motion.div
+              key={activeDash?.id + '-placeholder'}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl flex flex-col items-center justify-center text-center"
+              style={{ border: '1px dashed rgba(255,255,255,0.08)', height: '400px', background: 'rgba(255,255,255,0.01)' }}
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
+              >
+                <Clock size={26} color="#3b82f6" />
               </div>
-            )
+              <h3 className="text-base font-bold text-white mb-2">Dashboard being set up</h3>
+              <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
+                Your <span className="text-gray-400">{activeDash?.name}</span> dashboard is being configured. We'll notify you as soon as it's live.
+              </p>
+            </motion.div>
           )}
         </motion.div>
       )}
