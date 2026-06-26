@@ -6,47 +6,6 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const isPlaceholder = url => !url || url.includes('REPLACE_WITH')
 
-const reportPages = [
-  { id: 'overview', name: 'Overview', pageNum: '0' },
-  { id: 'audience', name: 'Audience & Events', pageNum: '1' },
-  { id: 'geography', name: 'Geography', pageNum: '2' },
-]
-
-function AnalyticsCard({ title, embedUrl, isLoading }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="rounded-2xl overflow-hidden"
-      style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
-    >
-      <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
-      </div>
-      {isLoading ? (
-        <div className="h-80 flex items-center justify-center">
-          <div className="flex gap-2">
-            {[0, 1, 2].map(i => (
-              <div key={i} className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#3b82f6', animationDelay: `${i * 0.15}s` }} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <iframe
-          src={embedUrl}
-          title={title}
-          width="100%"
-          height="320"
-          style={{ border: 'none' }}
-          allowFullScreen
-          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        />
-      )}
-    </motion.div>
-  )
-}
-
 export default function AnalyticsPage() {
   const { user } = useAuth()
   const [dashboards, setDashboards] = useState([])
@@ -68,14 +27,6 @@ export default function AnalyticsPage() {
   }, [user.id])
 
   const activeDash = dashboards.find(d => d.id === active)
-
-  const getPageEmbedUrl = (baseUrl, pageNum) => {
-    if (isPlaceholder(baseUrl)) return null
-    // Convert reporting URL to embed URL and add page parameter
-    const reportId = baseUrl.split('/reporting/')[1]
-    if (!reportId) return baseUrl
-    return `https://datastudio.google.com/embed/reporting/${reportId}/page/${pageNum}`
-  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -159,18 +110,26 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          {/* Analytics cards grid */}
+          {/* Full-width report iframe */}
           {activeDash && !isPlaceholder(activeDash.embed_url) ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {reportPages.map(page => (
-                <AnalyticsCard
-                  key={page.id}
-                  title={page.name}
-                  embedUrl={getPageEmbedUrl(activeDash.embed_url, page.pageNum)}
-                  isLoading={false}
-                />
-              ))}
-            </div>
+            <motion.div
+              key={activeDash.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl overflow-hidden"
+              style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+            >
+              <iframe
+                src={activeDash.embed_url}
+                title={activeDash.name}
+                width="100%"
+                height="800"
+                style={{ border: 'none', display: 'block' }}
+                allowFullScreen
+                sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+              />
+            </motion.div>
           ) : (
             <motion.div
               key={activeDash?.id + '-placeholder'}
