@@ -40,7 +40,8 @@ const MarketingPage       = lazy(() => import('./pages/portal/MarketingPage'))
 const WebsitePage         = lazy(() => import('./pages/portal/WebsitePage'))
 const PerformancePage     = lazy(() => import('./pages/portal/PerformancePage'))
 const PipelinePage        = lazy(() => import('./pages/portal/PipelinePage'))
-const AutomationsPage     = lazy(() => import('./pages/portal/AutomationsPage'))
+const AutomationsPage              = lazy(() => import('./pages/portal/AutomationsPage'))
+const ChatbotConversationsPage     = lazy(() => import('./pages/portal/ChatbotConversationsPage'))
 const AdminDashboardPage  = lazy(() => import('./pages/portal/admin/AdminDashboardPage'))
 const AdminTicketsPage    = lazy(() => import('./pages/portal/admin/AdminTicketsPage'))
 const AdminEnquiriesPage  = lazy(() => import('./pages/portal/admin/AdminEnquiriesPage'))
@@ -103,6 +104,7 @@ function PortalApp() {
                   <Route path="performance"  element={<PerformancePage />} />
                   <Route path="pipeline"     element={<PipelinePage />} />
                   <Route path="automations"  element={<AutomationsPage />} />
+                  <Route path="automations/chatbot" element={<ChatbotConversationsPage />} />
                   <Route path="marketing"    element={<MarketingPage />} />
                   <Route path="website"      element={<WebsitePage />} />
                   <Route path="reports"      element={<ReportsPage />} />
