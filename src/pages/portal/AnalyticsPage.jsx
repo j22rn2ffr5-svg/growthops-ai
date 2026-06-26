@@ -95,6 +95,7 @@ export default function AnalyticsPage() {
       .from('client_dashboards')
       .select('*')
       .eq('user_id', user.id)
+      .eq('section', 'analytics')
       .order('created_at')
       .then(({ data }) => {
         setDashboards(data ?? [])
