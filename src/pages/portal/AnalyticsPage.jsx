@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { BarChart3, ExternalLink, Clock } from 'lucide-react'
+import { BarChart3, ArrowRight, Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 
-const isPlaceholder = url => !url || url.includes('REPLACE_WITH')
+const REPORT_ICONS = {
+  'Content & Landing Pages': '📄',
+  'Leads & Conversions': '🎯',
+  'Audience': '👥',
+  'SEO & Search': '🔍',
+  'Paid Ads': '💰',
+  'Overview': '📊',
+}
 
 export default function AnalyticsPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [dashboards, setDashboards] = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [active, setActive]         = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase
@@ -19,14 +27,10 @@ export default function AnalyticsPage() {
       .eq('user_id', user.id)
       .order('created_at')
       .then(({ data }) => {
-        const items = data ?? []
-        setDashboards(items)
-        if (items.length > 0) setActive(items[0].id)
+        setDashboards(data ?? [])
         setLoading(false)
       })
   }, [user.id])
-
-  const activeDash = dashboards.find(d => d.id === active)
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -58,100 +62,50 @@ export default function AnalyticsPage() {
           </p>
         </motion.div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="space-y-6"
-        >
-          {/* Tab selector */}
-          {dashboards.length > 1 && (
-            <div
-              className="flex gap-1 p-1 rounded-xl w-fit"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {dashboards.map((db, i) => (
+            <motion.div
+              key={db.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.07 }}
+              onClick={() => navigate(`/portal/analytics/${db.id}`)}
+              className="group cursor-pointer rounded-2xl p-6 flex flex-col gap-4 transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.07)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.border = '1px solid rgba(59,130,246,0.4)'}
+              onMouseLeave={e => e.currentTarget.style.border = '1px solid rgba(255,255,255,0.07)'}
             >
-              {dashboards.map(db => (
-                <button
-                  key={db.id}
-                  onClick={() => setActive(db.id)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150"
-                  style={
-                    active === db.id
-                      ? { background: 'rgba(59,130,246,0.2)', color: '#93c5fd' }
-                      : { color: '#6b7280' }
-                  }
+              <div className="flex items-start justify-between">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                  style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
                 >
-                  {db.name}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Dashboard header */}
-          {activeDash && (
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-white">{activeDash.name}</h2>
-              <a
-                href={activeDash.embed_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#9ca3af',
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = '#e5e7eb'}
-                onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
-              >
-                <ExternalLink size={12} /> Open full report
-              </a>
-            </div>
-          )}
-
-          {/* Full-width report iframe */}
-          {activeDash && !isPlaceholder(activeDash.embed_url) ? (
-            <motion.div
-              key={activeDash.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-2xl overflow-hidden"
-              style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
-            >
-              <iframe
-                src={activeDash.embed_url}
-                title={activeDash.name}
-                width="100%"
-                height="1100"
-                style={{ border: 'none', display: 'block' }}
-                allowFullScreen
-                sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={activeDash?.id + '-placeholder'}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-2xl flex flex-col items-center justify-center text-center"
-              style={{ border: '1px dashed rgba(255,255,255,0.08)', height: '400px', background: 'rgba(255,255,255,0.01)' }}
-            >
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
-              >
-                <Clock size={26} color="#3b82f6" />
+                  {REPORT_ICONS[db.name] ?? '📊'}
+                </div>
+                <ArrowRight size={16} color="#6b7280" className="mt-1 group-hover:text-blue-400 transition-colors" />
               </div>
-              <h3 className="text-base font-bold text-white mb-2">Dashboard being set up</h3>
-              <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
-                Your <span className="text-gray-400">{activeDash?.name}</span> dashboard is being configured. We'll notify you as soon as it's live.
-              </p>
+              <div>
+                <h3 className="text-base font-bold text-white mb-1">{db.name}</h3>
+                <p className="text-xs text-gray-500">
+                  {db.embed_url && !db.embed_url.includes('REPLACE_WITH') ? 'Live report' : 'Being configured'}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {db.embed_url && !db.embed_url.includes('REPLACE_WITH') ? (
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                ) : (
+                  <Clock size={12} color="#6b7280" />
+                )}
+                <span className="text-xs text-gray-500">
+                  {db.embed_url && !db.embed_url.includes('REPLACE_WITH') ? 'Active' : 'Coming soon'}
+                </span>
+              </div>
             </motion.div>
-          )}
-        </motion.div>
+          ))}
+        </div>
       )}
     </div>
   )

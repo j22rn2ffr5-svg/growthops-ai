@@ -33,7 +33,8 @@ const DashboardPage   = lazy(() => import('./pages/portal/DashboardPage'))
 const TicketsPage     = lazy(() => import('./pages/portal/TicketsPage'))
 const NewTicketPage        = lazy(() => import('./pages/portal/NewTicketPage'))
 const TicketDetailPage     = lazy(() => import('./pages/portal/TicketDetailPage'))
-const AnalyticsPage   = lazy(() => import('./pages/portal/AnalyticsPage'))
+const AnalyticsPage       = lazy(() => import('./pages/portal/AnalyticsPage'))
+const AnalyticsReportPage = lazy(() => import('./pages/portal/AnalyticsReportPage'))
 const SettingsPage        = lazy(() => import('./pages/portal/SettingsPage'))
 const MarketingPage       = lazy(() => import('./pages/portal/MarketingPage'))
 const WebsitePage         = lazy(() => import('./pages/portal/WebsitePage'))
@@ -95,6 +96,7 @@ function PortalApp() {
                 <Routes>
                   <Route index element={<DashboardPage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="analytics/:id" element={<AnalyticsReportPage />} />
                   <Route path="tickets" element={<TicketsPage />} />
                   <Route path="tickets/new" element={<NewTicketPage />} />
                   <Route path="tickets/:id" element={<TicketDetailPage />} />
