@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
                 src={activeDash.embed_url}
                 title={activeDash.name}
                 width="100%"
-                height="800"
+                height="1100"
                 style={{ border: 'none', display: 'block' }}
                 allowFullScreen
                 sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
