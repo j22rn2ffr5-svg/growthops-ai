@@ -51,6 +51,30 @@ const REPORT_DESCRIPTIONS = {
       { name: 'Geography', desc: 'Where in the world your visitors are based. Useful for local businesses to confirm they\'re reaching the right area.' },
     ]
   },
+  'SEO & Search': {
+    summary: 'How your site is performing in Google search results.',
+    metrics: [
+      { name: 'Clicks', desc: 'Total number of times someone clicked through to your site from a Google search result.' },
+      { name: 'Impressions', desc: 'How many times your site appeared in Google search results, whether clicked or not.' },
+      { name: 'CTR', desc: 'Click-through rate — the percentage of impressions that resulted in a click. Higher means your listing is compelling.' },
+      { name: 'Average Position', desc: 'Your average ranking position in Google search results. Position 1 is top of page. Lower number is better.' },
+      { name: 'Top Queries', desc: 'The search terms people used when they found (or almost found) your site. Useful for understanding what you\'re ranking for.' },
+      { name: 'Top Pages', desc: 'Which pages on your site are getting the most visibility and clicks from search.' },
+    ]
+  },
+  'Paid Ads': {
+    summary: 'Performance of your paid advertising campaigns.',
+    metrics: [
+      { name: 'Clicks', desc: 'Total number of clicks your ads received in the selected period.' },
+      { name: 'Impressions', desc: 'How many times your ads were shown to potential customers.' },
+      { name: 'CTR', desc: 'Click-through rate — percentage of people who saw your ad and clicked it. Higher means your ad copy is working.' },
+      { name: 'Avg. CPC', desc: 'Average cost per click — how much you\'re paying on average each time someone clicks your ad.' },
+      { name: 'Conversions', desc: 'Number of times someone completed a goal after clicking your ad — a form fill, booking, or purchase.' },
+      { name: 'Cost', desc: 'Total amount spent on ads in the selected period.' },
+      { name: 'Campaigns', desc: 'Breakdown of performance by individual campaign — useful for seeing which campaigns are delivering the best results.' },
+      { name: 'Keywords', desc: 'Which search terms are triggering your ads and how they\'re performing.' },
+    ]
+  },
 }
 
 function InfoTooltip({ name }) {
